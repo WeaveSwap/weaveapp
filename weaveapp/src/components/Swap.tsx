@@ -29,10 +29,14 @@ import React, { useContext, useEffect, useState } from "react";
 import { IoMdSettings } from "react-icons/io";
 import { FaClockRotateLeft } from "react-icons/fa6";
 import { IoSwapVertical } from "react-icons/io5";
-import { Button, Icon } from "@/primitives";
+import { Button, Input } from "@/primitives";
 import { useAccount } from "wagmi";
 import Image from "next/image";
 import { IoMdArrowDropdown } from "react-icons/io";
+import { swapAbi, swap, tokenA, tokenB, tokenC } from "@/constants";
+import { useReadContract } from "wagmi";
+import { Select } from "@/primitives";
+import { erc20Abi } from "viem";
 const Swap = () => {
   //   const { usdRates } = useContext(USDRatesContext);
   const { address } = useAccount();
@@ -48,8 +52,8 @@ const Swap = () => {
   //   >();
   const [isMoreTokens0, setIsMoreTokens0] = useState(false);
   const [isMoreTokens1, setIsMoreTokens1] = useState(false);
-  const [tokenInBalance, setTokenInBalance] = useState<string | number>(0);
-  const [tokenOutBalance, setTokenOutBalance] = useState<string | number>(0);
+  // const [tokenInBalance, setTokenInBalance] = useState<string | number>(0);
+  // const [tokenOutBalance, setTokenOutBalance] = useState<string | number>(0);
   //   const [txState, setTxState] = useState<TransactionState>(
   //     TransactionState.Newimport { IoMdArrowDropdown } from "react-icons/io";
   //   );
@@ -170,6 +174,39 @@ const Swap = () => {
   //     setIsSelectedInToken1(selectedToken0);
   //   };
 
+  const [tokenIn, setTokenIn] = useState("");
+  const [tokenOut, setTokenOut] = useState("");
+
+  const { data: swapAmount, isLoading } = useReadContract({
+    abi: swapAbi,
+    address: swap,
+    functionName: "getSwapAmount",
+    account: address,
+    args: [tokenIn, tokenOut, inputAmount],
+  });
+
+  const { data: tokenInBalance } = useReadContract({
+    address: tokenIn as `0x${string}`,
+    abi: erc20Abi,
+    functionName: "balanceOf",
+    args: [address as `0x${string}`],
+  });
+
+  const { data: tokenOutBalance } = useReadContract({
+    address: tokenOut as `0x${string}`,
+    abi: erc20Abi,
+    functionName: "balanceOf",
+    args: [address as `0x${string}`],
+  });
+
+  console.log("swap details:", tokenInBalance, tokenOutBalance);
+
+  console.log("tokens:", tokenIn, tokenOut);
+
+  console.log("input amount:", inputAmount);
+
+  console.log("swapAmount", Number(swapAmount));
+
   return (
     <main className="flex items-center justify-center">
       <div className="flex max-h-[58%] w-[33%] flex-col gap-10 rounded-[10px] border border-[0.5] border-grey-1 p-10 font-khand text-white">
@@ -180,11 +217,11 @@ const Swap = () => {
             <FaClockRotateLeft />
           </span>
         </div>
-        <div>
+        <div className="rounded-md bg-grey-1/30 p-4">
           <div className="flex items-center justify-between">
             <span className="flex items-center gap-1">
               <p className="text-sm font-semibold text-grey-1">From</p>
-              <span className="flex items-center gap-1">
+              {/* <span className="flex items-center gap-1">
                 <Image
                   height={20}
                   width={20}
@@ -193,11 +230,41 @@ const Swap = () => {
                 />
                 <p>ETH</p>
                 <IoMdArrowDropdown />
-              </span>
+              </span> */}
+              <Select
+                inputId="token1"
+                option={[
+                  {
+                    label: "Token A",
+                    value: tokenA,
+                    icon: {
+                      1: "blylogo",
+                    },
+                  },
+                  {
+                    label: "Token B",
+                    value: tokenB,
+                    icon: {
+                      1: "clylogo",
+                    },
+                  },
+                  {
+                    label: "Token C",
+                    value: tokenC,
+                    icon: {
+                      1: "dotlogo",
+                    },
+                  },
+                ]}
+                onChange={(option) => {
+                  console.log(option?.value);
+                  setTokenIn(option?.value!);
+                }}
+              />
             </span>
             <span className="flex items-center gap-1">
               <p className="text-sm font-semibold text-grey-1">Wallet Bal</p>
-              <p>23.72</p>
+              <p>{tokenInBalance?.toString()}</p>
               <Button variant="primary" className="h-3.5 w-5">
                 Max
               </Button>
@@ -206,7 +273,11 @@ const Swap = () => {
           <hr />
           <div className="flex items-center justify-between">
             <span className="flex items-center gap-1">
-              <p>2.1</p>
+              <Input
+                id="valueIn"
+                type="number"
+                onChange={(e) => setInputAmount(e.target.value)}
+              />
               <p className="text-sm font-semibold text-grey-1">($4602.43)</p>
             </span>
             <span className="flex items-center gap-1">
@@ -216,11 +287,11 @@ const Swap = () => {
             </span>
           </div>
         </div>
-        <div>
+        <div className="rounded-md bg-grey-1/30 p-4">
           <div className="flex items-center justify-between">
             <span className="flex items-center gap-1">
               <p className="text-sm font-semibold text-grey-1">To</p>
-              <span className="flex items-center gap-1">
+              {/* <span className="flex items-center gap-1">
                 <Image
                   height={20}
                   width={20}
@@ -229,17 +300,47 @@ const Swap = () => {
                 />
                 <p>WAS</p>
                 <IoMdArrowDropdown />
-              </span>
+              </span> */}
+              <Select
+                inputId="token1"
+                option={[
+                  {
+                    label: "Token A",
+                    value: tokenA,
+                    icon: {
+                      1: "blylogo",
+                    },
+                  },
+                  {
+                    label: "Token B",
+                    value: tokenB,
+                    icon: {
+                      1: "clylogo",
+                    },
+                  },
+                  {
+                    label: "Token C",
+                    value: tokenC,
+                    icon: {
+                      1: "dotlogo",
+                    },
+                  },
+                ]}
+                onChange={(option) => {
+                  console.log(option?.value);
+                  setTokenOut(option?.value!);
+                }}
+              />
             </span>
             <span className="flex items-center gap-1">
               <p className="text-sm font-semibold text-grey-1">Wallet Bal</p>
-              <p>23.72</p>
+              <p>{tokenOutBalance?.toString()}</p>
             </span>
           </div>
           <hr />
           <div className="flex items-center justify-between">
             <span className="flex items-center gap-1">
-              <p>2.1</p>
+              <p>{Number(swapAmount) || 0}</p>
               <p className="text-sm font-semibold text-grey-1">($4602.43)</p>
             </span>
             <span className="flex items-center gap-1">
@@ -271,7 +372,11 @@ const Swap = () => {
             </span>
           </div>
         </div>
-        <Button className="w-full font-bold" variant="primary">
+        <Button
+          className="w-full font-bold"
+          variant="primary"
+          disabled={isLoading}
+        >
           Swap
         </Button>
       </div>

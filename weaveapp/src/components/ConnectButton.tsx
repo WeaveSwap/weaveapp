@@ -55,7 +55,7 @@ export const WalletConnectButton = ({ className = "" }) => {
                 );
               }
               return (
-                <div className="flex gap-3">
+                <div className="flex gap-3 font-kavoon">
                   <div className="relative" onClick={openChainModal}>
                     <div className="flex items-center">
                       <Image
@@ -86,7 +86,7 @@ export const WalletConnectButton = ({ className = "" }) => {
                   <div className="flex flex-col items-end justify-center">
                     <div className="flex items-center gap-2">
                       <div
-                        className="cursor-pointer text-sm text-black dark:text-white"
+                        className="cursor-pointer text-sm text-white dark:text-white"
                         onClick={openAccountModal}
                       >
                         {account.displayName}
