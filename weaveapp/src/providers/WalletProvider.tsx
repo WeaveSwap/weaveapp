@@ -22,6 +22,7 @@ import {
   metaMaskWallet,
 } from "@rainbow-me/rainbowkit/wallets";
 import { createConfig } from "wagmi";
+import { Toaster } from "sonner";
 
 // const config = getDefaultConfig({
 //   projectId: "9d5577b590aa046985d5b2659120032b",
@@ -51,6 +52,7 @@ const WalletProvider = ({ children }: { children: React.ReactNode }) => {
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
         <RainbowKitProvider>
+          <Toaster richColors position="top-center" closeButton />
           <main
             className={`p-5 ${path !== "/" && "bg-black"} flex min-h-[100vh] flex-col justify-between gap-10`}
           >

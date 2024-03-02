@@ -1,169 +1,33 @@
 "use client";
-import React, { useContext, useEffect, useState } from "react";
-// import {
-//   erc20ABI,
-//   useAccount,
-//   useBalance,
-//   useContractRead,
-//   useContractWrite,
-//   useWaitForTransaction,
-// } from "wagmi";
-// import { TraderContext } from "../context/TraderContext";
-// import useDebounce from "@/hooks/useDebounce";
-// import { TOKENS } from "@/libs/constants";
-// import { TransactionState } from "@/libs/providers";
-// import { SwapRoute } from "@uniswap/smart-order-router";
-// import { generateRoute } from "@/libs/routing";
-// import { Token } from "@uniswap/sdk-core";
-// import SwapTokenModalSelect from "./SwapTokenModalSelect";
-// import { Button } from "@/components/utils/Button";
-// import { fromReadableAmount } from "@/libs/conversion";
-// import {
-//   calculateActualPrice,
-//   formatNumberToFixed,
-//   getSwapText,
-//   getUSDPrice,
-// } from "@/utils";
-// import SwapOutcomeModal from "./SwapOutcomeModal";
-// import { USDRatesContext } from "@/context/USDRatesContext";
-import { IoMdSettings } from "react-icons/io";
-import { FaClockRotateLeft } from "react-icons/fa6";
-import { IoSwapVertical } from "react-icons/io5";
-import { Button, Input } from "@/primitives";
-import { useAccount } from "wagmi";
+import { useEffect, useState } from "react";
+import { swap, swapAbi, tokenA, tokenB, tokenC } from "@/constants";
+import { Button, Input, Select } from "@/primitives";
 import Image from "next/image";
-import { IoMdArrowDropdown } from "react-icons/io";
-import { swapAbi, swap, tokenA, tokenB, tokenC } from "@/constants";
-import { useReadContract } from "wagmi";
-import { Select } from "@/primitives";
-import { erc20Abi } from "viem";
+import { FaClockRotateLeft } from "react-icons/fa6";
+import { IoMdArrowDropdown, IoMdSettings } from "react-icons/io";
+import { erc20Abi, parseUnits } from "viem";
+import {
+  useAccount,
+  useReadContract,
+  useSimulateContract,
+  useWriteContract,
+  useEstimateFeesPerGas,
+  useWaitForTransactionReceipt,
+} from "wagmi";
+import { toast } from "sonner";
+
 const Swap = () => {
   //   const { usdRates } = useContext(USDRatesContext);
   const { address } = useAccount();
   const [inputAmount, setInputAmount] = useState<number | string>(0);
-  const [outputAmount, setOutputAmount] = useState<number | string>(0);
-  const [gasFee, setGasFee] = useState("0");
-  //   const { traderSelectedSafe } = useContext(TraderContext);
-  //   const [selectedInToken0, setIsSelectedInToken0] = useState<Token | undefined>(
-  //     TOKENS[0]
-  //   );
-  //   const [selectedInToken1, setIsSelectedInToken1] = useState<
-  //     Token | undefined
-  //   >();
   const [isMoreTokens0, setIsMoreTokens0] = useState(false);
   const [isMoreTokens1, setIsMoreTokens1] = useState(false);
-  // const [tokenInBalance, setTokenInBalance] = useState<string | number>(0);
-  // const [tokenOutBalance, setTokenOutBalance] = useState<string | number>(0);
-  //   const [txState, setTxState] = useState<TransactionState>(
-  //     TransactionState.Newimport { IoMdArrowDropdown } from "react-icons/io";
-  //   );
-  const [blockNumber, setBlockNumber] = useState<number>(0);
 
-  //   const [route, setRoute] = useState<SwapRoute | null>(null);
-  const [isSwapSuccessModalOpen, setIsSwapSuccessModalOpen] = useState(false);
-
-  //   const debouncedAmountIn = useDebounce(Number(inputAmount));
-  //   const { data: token0Balance } = useContractRead({
-  //     address: selectedInToken0?.address as `0x${string}`,
-  //     abi: erc20ABI,
-  //     functionName: "balanceOf",
-  //     args: [traderSelectedSafe as `0x${string}`],
-  //   });
-  //   const result = useBalance({
-  //     address: traderSelectedSafe as `0x${string}`,
-  //   });
-
-  //   useEffect(() => {
-  //     if (selectedInToken0 && selectedInToken0.symbol === "ETH") {
-  //       setTokenInBalance(formatNumberToFixed(result?.data?.formatted));
-  //     }
-  //     if (selectedInToken0 && selectedInToken0.symbol !== "ETH") {
-  //       setTokenInBalance(
-  //         formatNumberToFixed(
-  //           calculateActualPrice(token0Balance, selectedInToken0?.decimals)
-  //         )
-  //       );
-  //     }
-  //   }, [result, token0Balance, selectedInToken0]);
-
-  //   const { data: token1Balance } = useContractRead({
-  //     address: selectedInToken1?.address as `0x${string}`,
-  //     abi: erc20ABI,
-  //     functionName: "balanceOf",
-  //     args: [traderSelectedSafe as `0x${string}`],
-  //   });
-
-  //   useEffect(() => {
-  //     if (selectedInToken1 && selectedInToken1.symbol === "ETH") {
-  //       setTokenOutBalance(formatNumberToFixed(result?.data?.formatted));
-  //     }
-  //     if (selectedInToken1 && selectedInToken1.symbol !== "ETH") {
-  //       setTokenOutBalance(
-  //         formatNumberToFixed(
-  //           calculateActualPrice(token1Balance, selectedInToken1?.decimals)
-  //         )
-  //       );
-  //     }
-  //   }, [result, token1Balance, selectedInToken1]);
-
-  //   const {
-  //     data: transaction,
-  //     writeAsync: swap,
-  //     isLoading: isTransactionLoading,
-  //     isError: isTransactionError,
-  //     error: transactionError,
-  //   } = useContractWrite({
-  //     address: delegation.address,
-  //     abi: delegation.abi,
-  //     functionName: "executeSwap",
-  //     args: [
-  //       traderSelectedSafe,
-  //       selectedInToken0?.address,
-  //       selectedInToken1?.address,
-  //       fromReadableAmount(
-  //         Number(inputAmount),
-  //         selectedInToken0?.decimals!
-  //       ).toString(),
-  //     ],
-  //   });
-
-  //   const {
-  //     isLoading: isAwaitingSwapCompletion,
-  //     isSuccess: isTransactionSuccessful,
-  //     isError: isSwapError,
-  //     error: swapError,
-  //   } = useWaitForTransaction({
-  //     hash: transaction?.hash,
-  //   });
-
-  //   useEffect(() => {
-  //     if (isAwaitingSwapCompletion || isTransactionLoading) {
-  //       setIsSwapSuccessModalOpen(true);
-  //     }
-  //   }, [isAwaitingSwapCompletion, isTransactionLoading, swapError]);
-
-  //   const onCreateRoute = async () => {
-  //     const route = await generateRoute(
-  //       Number(inputAmount),
-  //       selectedInToken0!,
-  //       selectedInToken1!,
-  //       address!
-  //     );
-  //     setOutputAmount(Number(route?.quote.toExact()));
-  //     setRoute(route);
-  //   };
-
-  //   useEffect(() => {
-  //     if (debouncedAmountIn) {
-  //       onCreateRoute();
-  //     }
-  //   }, [debouncedAmountIn, selectedInToken0]);
-
-  const handleReset = () => {
-    setOutputAmount(0);
-    setInputAmount(0);
-    setGasFee("0");
-  };
+  // const handleReset = () => {
+  //   setOutputAmount(0);
+  //   setInputAmount(0);
+  //   setGasFee("0");
+  // };
 
   //   const handleSwitchToken = () => {
   //     const token0Amount = inputAmount;
@@ -174,30 +38,63 @@ const Swap = () => {
   //     setIsSelectedInToken1(selectedToken0);
   //   };
 
-  const [tokenIn, setTokenIn] = useState("");
-  const [tokenOut, setTokenOut] = useState("");
+  const [tokenIn, setTokenIn] = useState<{
+    name: string;
+    address: string;
+    value?: string;
+  }>({
+    name: "",
+    address: "",
+  });
 
-  const { data: swapAmount, isLoading } = useReadContract({
+  const [tokenOut, setTokenOut] = useState<{
+    name: string;
+    address: string;
+    value?: string;
+  }>({
+    name: "",
+    address: "",
+  });
+
+  const { data: outputAmount, isLoading } = useReadContract({
     abi: swapAbi,
     address: swap,
     functionName: "getSwapAmount",
     account: address,
-    args: [tokenIn, tokenOut, inputAmount],
+    args: [tokenIn.address, tokenOut.address, inputAmount],
   });
 
-  const { data: tokenInBalance } = useReadContract({
-    address: tokenIn as `0x${string}`,
+  const { data: tokenInBalance, refetch: refetchTokenIn } = useReadContract({
+    address: tokenIn.address as `0x${string}`,
     abi: erc20Abi,
     functionName: "balanceOf",
     args: [address as `0x${string}`],
   });
 
-  const { data: tokenOutBalance } = useReadContract({
-    address: tokenOut as `0x${string}`,
+  const { data: tokenOutBalance, refetch: refetchTokenOut } = useReadContract({
+    address: tokenOut.address as `0x${string}`,
     abi: erc20Abi,
     functionName: "balanceOf",
     args: [address as `0x${string}`],
   });
+
+  const { data: simulatedData, error: simulatedError } = useSimulateContract({
+    abi: swapAbi,
+    address: swap,
+    functionName: "swapAsset",
+    account: address,
+    args: [tokenIn.address, tokenOut.address, inputAmount],
+    value: parseUnits("10000000", 10),
+  });
+
+  const {
+    data: hash,
+    isPending,
+    writeContract,
+    writeContractAsync,
+  } = useWriteContract();
+
+  const estimatedGas = useEstimateFeesPerGas();
 
   console.log("swap details:", tokenInBalance, tokenOutBalance);
 
@@ -205,7 +102,59 @@ const Swap = () => {
 
   console.log("input amount:", inputAmount);
 
-  console.log("swapAmount", Number(swapAmount));
+  console.log("outputAmount", Number(outputAmount));
+
+  console.log("simulatedData", simulatedData);
+
+  console.log("simulatedError", simulatedError);
+
+  const { isLoading: isConfirming, isSuccess: isConfirmed } =
+    useWaitForTransactionReceipt({
+      hash,
+    });
+
+  const handleSwap = async () => {
+    try {
+      await writeContractAsync({
+        abi: swapAbi,
+        address: swap,
+        functionName: "swapAsset",
+        account: address,
+        args: [tokenIn.address, tokenOut.address, inputAmount],
+        value: parseUnits("100000", 10),
+      });
+      // if (isConfirmed) {
+      // }
+    } catch (error) {
+      toast.error("An error occured");
+    }
+  };
+
+  // console.log("estimated gas", result);
+  useEffect(() => {
+    // if (tokenIn && tokenOut && inputAmount && outputAmount) {
+    // writeContract({
+    //   address: tokenOut.address as `0x${string}`,
+    //   abi: erc20Abi,
+    //   functionName: "approve",
+    //   args: [swap as `0x${string}`, parseUnits("100", 10)],
+    // });
+    //   writeContract({
+    //     address: tokenIn.address as `0x${string}`,
+    //     abi: erc20Abi,
+    //     functionName: "approve",
+    //     args: [swap as `0x${string}`, parseUnits("100", 10)],
+    //   });
+    // }
+  }, [tokenIn, tokenOut, inputAmount, outputAmount]);
+
+  useEffect(() => {
+    if (isConfirmed) {
+      refetchTokenIn();
+      refetchTokenOut();
+      toast.success("Swap succesful");
+    }
+  }, [isConfirmed]);
 
   return (
     <main className="flex items-center justify-center">
@@ -258,7 +207,10 @@ const Swap = () => {
                 ]}
                 onChange={(option) => {
                   console.log(option?.value);
-                  setTokenIn(option?.value!);
+                  setTokenIn({
+                    name: option?.label!,
+                    address: option?.value!,
+                  });
                 }}
               />
             </span>
@@ -328,7 +280,10 @@ const Swap = () => {
                 ]}
                 onChange={(option) => {
                   console.log(option?.value);
-                  setTokenOut(option?.value!);
+                  setTokenOut({
+                    name: option?.label!,
+                    address: option?.value!,
+                  });
                 }}
               />
             </span>
@@ -340,7 +295,7 @@ const Swap = () => {
           <hr />
           <div className="flex items-center justify-between">
             <span className="flex items-center gap-1">
-              <p>{Number(swapAmount) || 0}</p>
+              <p>{Number(outputAmount) || 0}</p>
               <p className="text-sm font-semibold text-grey-1">($4602.43)</p>
             </span>
             <span className="flex items-center gap-1">
@@ -355,27 +310,34 @@ const Swap = () => {
             </span>
           </div>
         </div>
-        <div className="flex flex-col gap-2">
-          <p>Summary</p>
-          <div>
-            <span className="flex items-center justify-between">
-              <p className="text-grey-1">Cross chain rate</p>
-              <p>1 USDT on ETH= 1 USDT on WAS</p>
-            </span>
-            <span className="flex items-center justify-between">
-              <p className="text-grey-1">Amount Recieved (Estimated)</p>
-              <p>0.000WAS</p>
-            </span>
-            <span className="flex items-center justify-between">
-              <p className="text-grey-1">Gas Fee</p>
-              <p>0.000USDC</p>
-            </span>
+        {tokenIn.address && tokenOut.address && inputAmount && (
+          <div className="flex flex-col gap-2">
+            <p>Summary</p>
+            <div>
+              <span className="flex items-center justify-between">
+                <p className="text-grey-1">Exchange rate</p>
+                <p>
+                  1 {tokenIn.name} on BNB =
+                  {Number(outputAmount) / Number(inputAmount)} {tokenOut.name}{" "}
+                  on BNB
+                </p>
+              </span>
+              <span className="flex items-center justify-between">
+                <p className="text-grey-1">Amount Recieved (Estimated)</p>
+                <p>{`${Number(outputAmount)} ${tokenOut.name}`}</p>
+              </span>
+              <span className="flex items-center justify-between">
+                <p className="text-grey-1">Gas Fee</p>
+                <p>{`${estimatedGas.data?.maxPriorityFeePerGas} BNB`}</p>
+              </span>
+            </div>
           </div>
-        </div>
+        )}
         <Button
           className="w-full font-bold"
           variant="primary"
-          disabled={isLoading}
+          disabled={isLoading || isPending || isConfirming}
+          onClick={handleSwap}
         >
           Swap
         </Button>
