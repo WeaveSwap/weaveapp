@@ -1,20 +1,20 @@
 "use client";
-import { useEffect, useState } from "react";
 import { swap, swapAbi, tokenA, tokenB, tokenC } from "@/constants";
 import { Button, Input, Select } from "@/primitives";
 import Image from "next/image";
+import { useEffect, useState } from "react";
 import { FaClockRotateLeft } from "react-icons/fa6";
 import { IoMdArrowDropdown, IoMdSettings } from "react-icons/io";
+import { toast } from "sonner";
 import { erc20Abi, parseUnits } from "viem";
 import {
   useAccount,
+  useEstimateFeesPerGas,
   useReadContract,
   useSimulateContract,
-  useWriteContract,
-  useEstimateFeesPerGas,
   useWaitForTransactionReceipt,
+  useWriteContract,
 } from "wagmi";
-import { toast } from "sonner";
 
 const Swap = () => {
   //   const { usdRates } = useContext(USDRatesContext);
