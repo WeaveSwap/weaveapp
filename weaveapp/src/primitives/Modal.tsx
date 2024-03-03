@@ -1,4 +1,5 @@
-import * as Dialog from '@radix-ui/react-dialog';
+import * as Dialog from "@radix-ui/react-dialog";
+import { twMerge } from "tailwind-merge";
 
 interface ModalProps {
   open?: boolean;
@@ -8,7 +9,7 @@ interface ModalProps {
 
 const Modal = ({ open, onOpenChange, children }: ModalProps) => {
   return (
-    <Dialog.Root open={open} onOpenChange={onOpenChange}>
+    <Dialog.Root open={open} onOpenChange={onOpenChange} modal={true}>
       {children}
     </Dialog.Root>
   );
@@ -17,17 +18,21 @@ const Modal = ({ open, onOpenChange, children }: ModalProps) => {
 interface ModalPortalProps {
   container?: HTMLElement;
   children: React.ReactNode;
+  className?: string;
   closeModal?: () => void;
 }
 
-const ModalPortal = ({ container, children, closeModal }: ModalPortalProps) => {
+const ModalPortal = ({ container, children, closeModal,className }: ModalPortalProps) => {
   return (
     <Dialog.Portal
       container={container}
       // className={`${inter.variable} ${inknut.variable} font-sans`}
     >
       <Dialog.Overlay
-        className="fixed inset-0 z-30 bg-bca-black-2 opacity-30 data-[state=open]:animate-overlayShow"
+        className={twMerge(
+          "data-[state=open]:animate-overlayShow fixed inset-0",
+          className,
+        )}
         onClick={closeModal}
       />
       {children}
