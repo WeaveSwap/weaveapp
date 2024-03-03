@@ -1,6 +1,5 @@
-import { Swap, Header } from "@/components";
-
-import React from "react";
+"use client";
+import { Swap } from "@/components";
 
 const Page = () => {
   return (

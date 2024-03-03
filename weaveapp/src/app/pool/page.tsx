@@ -1,8 +1,8 @@
 "use client";
-import { ColumnDef } from "@tanstack/react-table";
-import { DataTable, IconType } from "@/components";
-import Image from "next/image";
+import { DataTable } from "@/components";
 import { Button, Input, Modal } from "@/primitives";
+import { ColumnDef } from "@tanstack/react-table";
+import Image from "next/image";
 import { useState } from "react";
 
 type Pool = {
@@ -17,7 +17,7 @@ type Pool = {
   Action: string;
 };
 
-export const pools: Pool[] = [
+const pools: Pool[] = [
   {
     id: "1",
     Pool: "PLY/WAS",
@@ -86,7 +86,7 @@ export const pools: Pool[] = [
   },
 ];
 
-export const columns: ColumnDef<Pool>[] = [
+const columns: ColumnDef<Pool>[] = [
   {
     accessorKey: "Pool",
     // header: "Pool",
