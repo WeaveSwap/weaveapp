@@ -139,12 +139,12 @@ const Swap = () => {
     //   functionName: "approve",
     //   args: [swap as `0x${string}`, parseUnits("100", 10)],
     // });
-    //   writeContract({
-    //     address: tokenIn.address as `0x${string}`,
-    //     abi: erc20Abi,
-    //     functionName: "approve",
-    //     args: [swap as `0x${string}`, parseUnits("100", 10)],
-    //   });
+      // writeContract({
+      //   address: tokenIn.address as `0x${string}`,
+      //   abi: erc20Abi,
+      //   functionName: "approve",
+      //   args: [swap as `0x${string}`, parseUnits("100", 10)],
+      // });
     // }
   }, [tokenIn, tokenOut, inputAmount, outputAmount]);
 

@@ -23,6 +23,7 @@ contract Pool {
 
     // Address of the owner contract.
     address public ownerContract;
+    address public borrowingContract;
 
     // Total amount of tokens lent out.
     uint256 public amoutLended;
@@ -49,7 +50,7 @@ contract Pool {
      * @dev Ensures that only the owner contract can call the modified function.
      */
     modifier onlyOwner() {
-        if (msg.sender != ownerContract) {
+        if (msg.sender != ownerContract && msg.sender != borrowingContract) {
             revert lending_addressNotAllowed();
         }
         _;
@@ -58,7 +59,8 @@ contract Pool {
     /**
      * @param _token The ERC20 token address for lending and borrowing.
      */
-    constructor(address _token) {
+    constructor(address _token, address newBorrowingContract) {
+        borrowingContract = newBorrowingContract;
         token = IERC20(_token);
         ownerContract = msg.sender;
     }

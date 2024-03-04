@@ -6,7 +6,6 @@ pragma solidity ^0.8.9;
 import "@openzeppelin/contracts/interfaces/IERC20.sol";
 import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
 import "./Pool.sol";
-import "../Dex/WeaveSwap.sol";
 
 // Custom error definitions for specific failure conditions
 error lendingTracker_addressNotAllowed();
@@ -41,6 +40,9 @@ contract LendingTracker {
 
     // Owner of the contract, set at deployment
     address owner;
+
+    // Borrowing contract
+    address public borrowingContract;
 
     // Constructor sets the deploying address as the owner
     constructor() {
@@ -81,7 +83,7 @@ contract LendingTracker {
         if (address(tokenToPool[tokenAddress].poolAddress) != address(0)) {
             revert lendingTracker_poolExists();
         }
-        Pool newPool = new Pool(tokenAddress);
+        Pool newPool = new Pool(tokenAddress, borrowingContract);
         tokenToPool[tokenAddress] = tokenPool(newPool, priceAddress);
         availableTokens.push(tokenAddress);
     }
@@ -178,6 +180,18 @@ contract LendingTracker {
         // Transfer tokens to user
         IERC20(tokenAddress).transfer(msg.sender, tokenAmount);
 
+        // // Pop the lended token from the array
+        if (userLendedAmount[msg.sender][tokenAddress] == 0) {
+            for (uint256 i; i < userLendedTokens[msg.sender].length; i++) {
+                if (userLendedTokens[msg.sender][i] == tokenAddress) {
+                    userLendedTokens[msg.sender][i] ==
+                        userLendedTokens[msg.sender][
+                            userLendedTokens[msg.sender].length - 1
+                        ];
+                    userLendedTokens[msg.sender].pop();
+                }
+            }
+        }
         // Event
         emit userWithdrawnLendedTokens(msg.sender, tokenAddress, tokenAmount);
     }
@@ -192,7 +206,7 @@ contract LendingTracker {
     function newTokenChecker(
         address[] memory userTokens,
         address token
-    ) public pure returns (bool) {
+    ) internal pure returns (bool) {
         bool newToken = true;
         for (uint256 i; i < userTokens.length; i++) {
             if (token == userTokens[i]) {
@@ -221,9 +235,19 @@ contract LendingTracker {
     function allAvailableTokens() public view returns (address[] memory) {
         return availableTokens;
     }
+
+    function addBorrowingContract(address newBorrowingContract) public {
+        borrowingContract = newBorrowingContract;
+    }
+
+    // Get all loaned tokens based on user
+    function getLoanedTokens(
+        address user
+    ) public view returns (address[] memory) {
+        return userLendedTokens[user];
+    }
 }
 
-// Need to do:
-// Swap of tokens after termination of collateral(or what to do if not swapping)
+// Additional idea:
 // If yield number gets too high(uint256), we open up a new pool with same stats
 // If we make new pool with same token and price address we need to restore lended amount for each person(refreshPool())

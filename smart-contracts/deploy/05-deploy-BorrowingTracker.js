@@ -6,11 +6,15 @@ module.exports = async () => {
   const { deployer } = await getNamedAccounts();
   const { deploy, log } = deployments;
 
-  args = [];
+  const lendingTracker = await ethers.getContract("LendingTracker", deployer);
+  const lendingTrackerAddress = lendingTracker.target;
+  const swapRouter = await ethers.getContract("SwapRouter", deployer);
+  const swapRouterAddress = swapRouter.target;
+  args = [lendingTrackerAddress, swapRouterAddress];
 
   const blockConfirmations = developmentChains.includes(network.name) ? 0 : 6;
   log("Deploying...");
-  const lendingTracker = await deploy("LendingTracker", {
+  const borrowingTracker = await deploy("BorrowingTracker", {
     log: true,
     from: deployer,
     waitConfirmations: blockConfirmations,
@@ -21,11 +25,11 @@ module.exports = async () => {
   if (!developmentChains.includes(network.name)) {
     log("Verifying...");
     await verify(
-      lendingTracker.address,
+      borrowingTracker.address,
       args,
-      "contracts/Lending/LendingTracker.sol:LendingTracker"
+      "contracts/Lending/BorrowingTracker.sol:BorrowingTracker"
     );
   }
 };
 
-module.exports.tags = ["all", "lendingTracker", "tracker", "lending"];
+module.exports.tags = ["all", "borrowingTracker", "tracker", "lending"];

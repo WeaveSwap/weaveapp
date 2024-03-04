@@ -1,19 +1,17 @@
 const { ethers, getNamedAccounts } = require("hardhat");
 
-async function addTokenPool() {
+async function tokenList() {
   console.log("Connecting to the contracts...");
   const { deployer } = await getNamedAccounts();
   const lendingTracker = await ethers.getContract("LendingTracker", deployer);
-  const mockPriceFeed = await ethers.getContract("MockV3Aggregator");
-  const token = await ethers.getContract("TestToken1", deployer);
   console.log("Connected to the contract!");
 
-  console.log("Deploying the pool...");
-  await lendingTracker.addTokenPool(token.target, mockPriceFeed.target);
-  console.log("Pool deployed!");
+  console.log(
+    `These are all available tokens to lend, to borrow and to collateralize - ${await lendingTracker.allAvailableTokens()}`
+  );
 }
 
-addTokenPool()
+tokenList()
   .then(() => process.exit(0))
   .catch((error) => {
     console.error(error);

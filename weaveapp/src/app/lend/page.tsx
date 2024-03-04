@@ -1,70 +1,78 @@
 "use client";
 import { DataTable } from "@/components";
-import { Button, Icon, Input, Modal } from "@/primitives";
+import { Button, Icon, Input, Modal, Select } from "@/primitives";
 import { createUrl } from "@/utils";
 import * as Tabs from "@radix-ui/react-tabs";
 import { ColumnDef } from "@tanstack/react-table";
 import Image from "next/image";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { twMerge } from "tailwind-merge";
-
-const asset_name = ["MATIC", "ENG", "CBC", "WAS", "CLY"] as const;
-type AssetName = (typeof asset_name)[number];
+import {
+  lend,
+  lendAbi,
+  tokenA,
+  tokenB,
+  tokenC,
+  lendingPoolAbi,
+  borrow,
+  borrowAbi,
+} from "@/constants";
+import {
+  useAccount,
+  useEstimateFeesPerGas,
+  useReadContract,
+  useSimulateContract,
+  useWaitForTransactionReceipt,
+  useWriteContract,
+} from "wagmi";
+import { erc20Abi, parseUnits } from "viem";
+import { toast } from "sonner";
+import { IconType } from "@/components";
+const assetName = ["Token A", "Token B", "Token C"] as const;
+type AssetName = (typeof assetName)[number];
 type TabType = "supply" | "borrow";
+interface ItokenOptions {
+  label: string;
+  value: string;
+  icon: {
+    1: IconType;
+  };
+}
+
+const tokenOptions: ItokenOptions[] = [
+  {
+    label: "Token A",
+    value: tokenA,
+    icon: {
+      1: "blylogo",
+    },
+  },
+  {
+    label: "Token B",
+    value: tokenB,
+    icon: {
+      1: "clylogo",
+    },
+  },
+  {
+    label: "Token C",
+    value: tokenC,
+    icon: {
+      1: "dotlogo",
+    },
+  },
+];
 
 type Asset = {
-  id: string;
-  Name: AssetName;
+  Name: AssetName | null;
+  Address: `0x${string}` | null;
+  Image: string;
   "Total Supplied": string;
   APY: string;
   "Wallet Balance": string;
   Action: string;
 };
-
-const assets: Asset[] = [
-  {
-    id: "1",
-    Name: "MATIC",
-    "Total Supplied": "20M",
-    APY: "3.23%",
-    "Wallet Balance": "$2,000",
-    Action: "Supply",
-  },
-
-  {
-    id: "2",
-    Name: "ENG",
-    "Total Supplied": "20M",
-    APY: "3.23%",
-    "Wallet Balance": "$2,000",
-    Action: "Supply",
-  },
-  {
-    id: "3",
-    Name: "CBC",
-    "Total Supplied": "20M",
-    APY: "3.23%",
-    "Wallet Balance": "$2,000",
-    Action: "Supply",
-  },
-  {
-    id: "4",
-    Name: "WAS",
-    "Total Supplied": "20M",
-    APY: "3.23%",
-    "Wallet Balance": "$2,000",
-    Action: "Supply",
-  },
-  {
-    id: "5",
-    Name: "CLY",
-    "Total Supplied": "20M",
-    APY: "3.23%",
-    "Wallet Balance": "$2,000",
-    Action: "Supply",
-  },
-];
 
 const columns: ColumnDef<Asset>[] = [
   {
@@ -76,41 +84,17 @@ const columns: ColumnDef<Asset>[] = [
 
       const TokenIcon = () => {
         switch (asset) {
-          case "MATIC":
+          case "Token A":
             return (
-              <Image
-                width="20"
-                height="20"
-                src="/polygonlogo.svg"
-                alt="polygonlogo"
-              />
+              <Image width="20" height="20" src="/blylogo.svg" alt="blylogo" />
             );
-          case "CBC":
-            return (
-              <Image
-                width="20"
-                height="20"
-                src="/cnbclogo.svg"
-                alt="cnbclogo"
-              />
-            );
-          case "CLY":
+          case "Token B":
             return (
               <Image width="20" height="20" src="/clylogo.svg" alt="clylogo" />
             );
-          case "WAS":
+          case "Token C":
             return (
-              <Image
-                width="20"
-                height="20"
-                src="/weavelogo.svg"
-                alt="blylogo"
-              />
-            );
-
-          case "ENG":
-            return (
-              <Image width="20" height="20" src="/englogo.svg" alt="englogo" />
+              <Image width="20" height="20" src="/dotlogo.svg" alt="clylogo" />
             );
           default:
             return null;
@@ -140,10 +124,15 @@ const columns: ColumnDef<Asset>[] = [
   {
     accessorKey: "Action",
     header: "Action",
-    cell: ({ row }) => {
+    cell: ({ row, table }) => {
       const [inputAmount, setInputAmount] = useState<number | string>(0);
+      const [tokenCollateral, setTokenCollateral] = useState({
+        name: "",
+        address: "",
+        value: 0,
+      });
       const searchParams = useSearchParams();
-
+      const { address } = useAccount();
       const action = (): TabType => {
         const optionSearchParams = new URLSearchParams(searchParams.toString());
         const action = optionSearchParams.get("action");
@@ -151,6 +140,170 @@ const columns: ColumnDef<Asset>[] = [
       };
 
       const title = action()[0]?.toUpperCase() + action().slice(1);
+
+      const balance: string = row.getValue("Wallet Balance");
+      const name: string = row.getValue("Name");
+      const token: `0x${string}` = row.original.Address!;
+
+      console.log("token address", token);
+
+      const setMaxAmount = () => {
+        setInputAmount(balance.toString());
+      };
+
+      const { data: hash, isPending, writeContractAsync } = useWriteContract();
+      const {
+        data: approveHash,
+        isPending: isApprovePending,
+        isSuccess: isApproveSuccess,
+        writeContractAsync: writeApproveAsync,
+      } = useWriteContract();
+      const {
+        data: collateralApproveHash,
+        isPending: isCollateralApprovePending,
+        isSuccess: isCollateralApproveSuccess,
+        writeContractAsync: writeCollateralApproveAsync,
+      } = useWriteContract();
+      const {
+        data: stakeCollateralHash,
+        isPending: isStakeCollateralPending,
+        isSuccess: isStakeCollateralSuccess,
+        writeContractAsync: writeStakeCollateralAsync,
+      } = useWriteContract();
+      const {
+        data: borrowHash,
+        isPending: isBorrowPending,
+        isSuccess: isBorrowSuccess,
+        writeContractAsync: writeBorrowAsync,
+      } = useWriteContract();
+
+      const { isLoading: isConfirming, isSuccess: isConfirmed } =
+        useWaitForTransactionReceipt({
+          hash,
+        });
+
+      const { isLoading: isApproving, isSuccess: isApproved } =
+        useWaitForTransactionReceipt({
+          hash: approveHash,
+        });
+
+      const {
+        isLoading: isCollateralApproving,
+        isSuccess: isCollateralApproved,
+      } = useWaitForTransactionReceipt({
+        hash: collateralApproveHash,
+      });
+
+      const {
+        isLoading: isCollateralStaking,
+        isSuccess: isCollateralSuccesss,
+      } = useWaitForTransactionReceipt({
+        hash: stakeCollateralHash,
+      });
+
+      const { isLoading: isBorrowLoading, isSuccess: isBorrowSuccesss } =
+        useWaitForTransactionReceipt({
+          hash: borrowHash,
+        });
+
+      const handleLendApprove = async () => {
+        try {
+          await writeApproveAsync({
+            address: token as `0x${string}`,
+            abi: erc20Abi,
+            functionName: "approve",
+            args: [lend as `0x${string}`, parseUnits("100", 10)],
+          });
+          toast.success("Token approved succesfully");
+        } catch (error) {
+          console.error(error);
+          toast.error("An error occured");
+        }
+      };
+
+      const handleCollateralApprove = async () => {
+        try {
+          await writeCollateralApproveAsync({
+            address: tokenCollateral.address as `0x${string}`,
+            abi: erc20Abi,
+            functionName: "approve",
+            args: [borrow as `0x${string}`, parseUnits("100", 10)],
+          });
+          toast.success("Token approved succesfully");
+        } catch (error) {
+          console.error(error);
+          toast.error("An error occured");
+        }
+      };
+
+      const handleSupply = async () => {
+        try {
+          await writeContractAsync({
+            abi: lendAbi,
+            address: lend,
+            functionName: "lendToken",
+            account: address,
+            args: [token, inputAmount],
+          });
+          toast.success("Token supplied succesfully");
+          table.reset();
+        } catch (error) {
+          console.error(error);
+          toast.error("An error occured");
+        }
+      };
+
+      const handleStakeCollateral = async () => {
+        try {
+          await writeContractAsync({
+            abi: borrowAbi,
+            address: borrow,
+            functionName: "stakeCollateral",
+            account: address,
+            args: [tokenCollateral.address, tokenCollateral.value],
+          });
+          toast.success("Collateral Staked succesfully");
+          // table.reset();
+        } catch (error) {
+          console.error(error);
+          toast.error("An error occured");
+        }
+      };
+
+      const handleBorrow = async () => {
+        try {
+          await writeContractAsync({
+            abi: borrowAbi,
+            address: borrow,
+            functionName: "borrowToken",
+            account: address,
+            args: [token, inputAmount],
+          });
+          toast.success("Token Borrowed succesfully");
+          // table.reset();
+        } catch (error) {
+          console.error(error);
+          toast.error("An error occured");
+        }
+      };
+
+      useEffect(() => {
+        if (isApproved) {
+          handleSupply();
+        }
+      }, [isApproved]);
+
+      useEffect(() => {
+        if (isCollateralApproved) {
+          handleStakeCollateral();
+        }
+      }, [isCollateralApproved]);
+
+      useEffect(() => {
+        if (isCollateralSuccesss) {
+          handleBorrow();
+        }
+      }, [isCollateralSuccesss]);
 
       return (
         <Suspense fallback={<>Loading...</>}>
@@ -168,14 +321,20 @@ const columns: ColumnDef<Asset>[] = [
                 <div className="rounded-md bg-grey-1/30 p-4">
                   <div className="flex items-center justify-between">
                     <span className="flex items-center gap-1">
-                      <p className="text-sm font-semibold text-grey-1">Asset</p>
+                      <p className="text-sm font-semibold text-grey-1">
+                        {`${name} Asset`}
+                      </p>
                     </span>
                     <span className="flex items-center gap-1">
                       <p className="text-sm font-semibold text-grey-1">
                         Wallet Bal
                       </p>
-                      {/* <p>{tokenInBalance?.toString()}</p> */}
-                      <Button variant="primary" className="h-3.5 w-5">
+                      <p>{balance}</p>
+                      <Button
+                        variant="primary"
+                        className="h-3.5 w-5"
+                        onClick={setMaxAmount}
+                      >
                         Max
                       </Button>
                     </span>
@@ -186,6 +345,7 @@ const columns: ColumnDef<Asset>[] = [
                       <Input
                         id="valueIn"
                         type="number"
+                        value={inputAmount}
                         onChange={(e) => setInputAmount(e.target.value)}
                       />
                       <p className="text-sm font-semibold text-grey-1">
@@ -204,6 +364,62 @@ const columns: ColumnDef<Asset>[] = [
                     </span>
                   </div>
                 </div>
+                {action() == "borrow" && inputAmount && (
+                  <div className="rounded-md bg-grey-1/30 p-4">
+                    <div className="flex items-center justify-between">
+                      <span className="flex items-center gap-1">
+                        <p className="text-sm font-semibold text-grey-1">
+                          Collateral
+                        </p>
+                        <Select
+                          inputId="token1"
+                          option={tokenOptions.filter(
+                            (tokenOption) => tokenOption.value !== token,
+                          )}
+                          onChange={(option) => {
+                            console.log(option?.value);
+                            setTokenCollateral({
+                              name: option?.label!,
+                              address: option?.value!,
+                              value: 0,
+                            });
+                          }}
+                        />
+                      </span>
+                    </div>
+                    <hr />
+                    <div className="flex items-center justify-between">
+                      <span className="flex items-center gap-1">
+                        <Input
+                          id="valueIn"
+                          type="number"
+                          value={tokenCollateral.value}
+                          onChange={(e) =>
+                            setTokenCollateral((prev) => {
+                              return {
+                                ...prev,
+                                value: Number(e.target.value),
+                              };
+                            })
+                          }
+                        />
+                        <p className="text-sm font-semibold text-grey-1">
+                          ($4602.43)
+                        </p>
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <Image
+                          height={20}
+                          width={20}
+                          src="/ethlogo.svg"
+                          alt="ethlogo"
+                        />
+                        <p className="text-2xl">Ethereum</p>
+                        {/* <IoMdArrowDropdown /> */}
+                      </span>
+                    </div>
+                  </div>
+                )}
                 <div className="flex flex-col gap-2">
                   <p>Summary</p>
                   <div>
@@ -225,10 +441,47 @@ const columns: ColumnDef<Asset>[] = [
                 <Button
                   className="w-full font-bold"
                   variant="primary"
-                  // disabled={isLoading || isPending || isConfirming}
-                  // onClick={handleSwap}
+                  disabled={
+                    isApprovePending ||
+                    isPending ||
+                    isConfirming ||
+                    isApproving ||
+                    isBorrowLoading ||
+                    isCollateralStaking ||
+                    isCollateralApproving ||
+                    isBorrowPending ||
+                    isStakeCollateralPending ||
+                    isCollateralApprovePending ||
+                    !tokenCollateral.address ||
+                    !tokenCollateral.value
+                  }
+                  onClick={
+                    action() == "borrow"
+                      ? handleCollateralApprove
+                      : handleLendApprove
+                  }
                 >
-                  {title}
+                  {isCollateralApprovePending
+                    ? "Approving collateral"
+                    : isStakeCollateralPending
+                      ? "Confirming stake collateral..."
+                      : isBorrowPending
+                        ? "Confirm borrow..."
+                        : isCollateralApproving
+                          ? "Confirming collateral"
+                          : isCollateralStaking
+                            ? "Staking collateral.."
+                            : isBorrowLoading
+                              ? "Borrowing..."
+                              : isConfirming
+                                ? "Confirming token supplied"
+                                : isApproving
+                                  ? "Confirming Approval..."
+                                  : isPending
+                                    ? "Supply token pending..."
+                                    : isApprovePending
+                                      ? "Aproving token.."
+                                      : title}
                 </Button>
               </Modal.Content>
             </Modal.Portal>
@@ -243,6 +496,7 @@ const Lend = () => {
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
+  const { address } = useAccount();
 
   const action = (): TabType => {
     const optionSearchParams = new URLSearchParams(searchParams.toString());
@@ -256,6 +510,116 @@ const Lend = () => {
     const optionUrl = createUrl(pathname, optionSearchParams);
     router.replace(optionUrl, { scroll: false });
   };
+
+  const { data: availableTokens, isLoading } = useReadContract({
+    abi: lendAbi,
+    address: lend,
+    functionName: "allAvailableTokens",
+    account: address,
+  });
+
+  const { data: Pooldetail, isLoading: isPoolDetailLoading } = useReadContract({
+    abi: lendAbi,
+    address: lend,
+    functionName: "tokenToPool",
+    account: address,
+    args: [tokenA],
+  });
+
+  const pooldetail = useMemo(() => Pooldetail as string[], [Pooldetail]);
+
+  const { data: borrowingAPY, isLoading: isAPYLoading } = useReadContract({
+    abi: lendingPoolAbi,
+    address: pooldetail?.[0] as `0x${string}`,
+    functionName: "borrowingAPY",
+    account: address,
+  });
+
+  const {
+    data: tokenABalance,
+    refetch: refetchTokenA,
+    isLoading: isTokenALoading,
+  } = useReadContract({
+    address: tokenA as `0x${string}`,
+    abi: erc20Abi,
+    functionName: "balanceOf",
+    args: [address as `0x${string}`],
+  });
+
+  const {
+    data: tokenBBalance,
+    refetch: refetchTokenB,
+    isLoading: isTokenBLoading,
+  } = useReadContract({
+    address: tokenB as `0x${string}`,
+    abi: erc20Abi,
+    functionName: "balanceOf",
+    args: [address as `0x${string}`],
+  });
+
+  const {
+    data: tokenCBalance,
+    refetch: refetchTokenC,
+    isLoading: isTokenCLoading,
+  } = useReadContract({
+    address: tokenC as `0x${string}`,
+    abi: erc20Abi,
+    functionName: "balanceOf",
+    args: [address as `0x${string}`],
+  });
+
+  console.log("Pooldetail", Pooldetail);
+  // console.log("borrowingAPY", borrowingAPY.toString());
+
+  const assets: Asset[] = useMemo(() => {
+    return (availableTokens as string[])?.map((availableToken) => {
+      let tokenInfo: Asset = {
+        Name: null,
+        Address: null,
+        Image: "",
+        "Wallet Balance": "",
+        APY: "",
+        "Total Supplied": "",
+        Action: "",
+      };
+
+      if (availableToken === tokenA) {
+        tokenInfo = {
+          Name: "Token A",
+          Address: availableToken,
+          Image: "/blylogo",
+          "Wallet Balance": tokenABalance?.toLocaleString("en-US") || "0",
+          APY: "3.23%",
+          "Total Supplied": "20M",
+          Action: "Supply",
+        };
+      } else if (availableToken === tokenB) {
+        tokenInfo = {
+          Name: "Token B",
+          Address: availableToken,
+          Image: "/clylogo",
+          "Wallet Balance": tokenBBalance?.toLocaleString("en-US") || "0",
+          APY: "3.23%",
+          "Total Supplied": "20M",
+          Action: "Supply",
+        };
+      } else if (availableToken === tokenC) {
+        tokenInfo = {
+          Name: "Token C",
+          Address: availableToken,
+          Image: "/dotlogo",
+          "Wallet Balance": tokenCBalance?.toLocaleString("en-US") || "0",
+          APY: "3.23%",
+          "Total Supplied": "20M",
+          Action: "Supply",
+        };
+      }
+      return tokenInfo;
+    });
+  }, [availableTokens, address]);
+
+  console.log("availableTokens", assets);
+
   return (
     <main className="flex flex-col gap-3">
       <div className="w-2/3">
@@ -335,12 +699,18 @@ const Lend = () => {
             />
           </Tabs.Trigger>
         </Tabs.List>
-        <Tabs.Content value="supply">
-          <DataTable columns={columns} data={assets} />
-        </Tabs.Content>
-        <Tabs.Content value="borrow">
-          <DataTable columns={columns} data={assets} />
-        </Tabs.Content>
+        {isLoading || isTokenALoading || isTokenBLoading || isTokenCLoading ? (
+          <>Loading...</>
+        ) : (
+          <>
+            <Tabs.Content value="supply">
+              <DataTable columns={columns} data={assets} />
+            </Tabs.Content>
+            <Tabs.Content value="borrow">
+              <DataTable columns={columns} data={assets} />
+            </Tabs.Content>
+          </>
+        )}
       </Tabs.Root>
     </main>
   );

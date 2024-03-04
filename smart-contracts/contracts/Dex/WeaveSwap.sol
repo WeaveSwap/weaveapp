@@ -192,6 +192,33 @@ contract SwapRouter {
         return output;
     }
 
+    // function getSwapFee(
+    //     address address1,
+    //     address address2
+    // ) public view returns (uint256) {
+    //     uint256 fee;
+    //     if (poolTracker.exists(address1, address2)) {
+    //         LiquidityPool pool = poolTracker.pairToPool(address1, address2);
+    //         fee += pool.swapFee();
+    //     } else if (poolTracker.tokenToRoute(address1, address2) != address(0)) {
+    //         address routingToken = poolTracker.tokenToRoute(address1, address2);
+    //         LiquidityPool pool1 = poolTracker.pairToPool(
+    //             address1,
+    //             routingToken
+    //         );
+    //         LiquidityPool pool2 = poolTracker.pairToPool(
+    //             address2,
+    //             routingToken
+    //         );
+    //         fee += pool1.swapFee();
+    //         fee += pool2.swapFee();
+    //     } else {
+    //         // Assets cant be swapped directly nor routed
+    //         revert SwapRouter_tokensCantBeSwapped();
+    //     }
+    //     return fee;
+    // }
+
     /**
      * @dev Fallback function if address calls unexisting function, but contains msg.data
      */

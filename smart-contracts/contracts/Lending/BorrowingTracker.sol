@@ -9,6 +9,9 @@ import "./Pool.sol";
 import "../Dex/WeaveSwap.sol";
 import "./LendingTracker.sol";
 
+error BorrowingTracker_AmountOfCollateralTokenTooLow();
+error BorrowingTracker_AmountTooHigh();
+
 /**
  * @title LendingTracker
  * @dev Manages lending, borrowing, and collateral operations for a decentralized finance platform.
@@ -39,24 +42,26 @@ contract BorrowingTracker {
         uint256 tokenAmount,
         uint256 interest
     );
-    event collateralTerminated(address user);
+    event collateralTerminated(address user, address terminator);
 
     // Maximum Loan-to-Value (LTV) ratio for borrowing against collateral
-    int256 ltv = 75;
+    int256 public ltv = 75;
 
     // Owner of the contract, set at deployment
     address owner;
 
     // SwapRouter
-    SwapRouter swapRouter;
+    SwapRouter public swapRouter;
+    address public swapToken; // We will take usdc
 
     // Lendingtracker
-    LendingTracker lendingTracker;
+    LendingTracker public lendingTracker;
 
     // Constructor sets the deploying address as the owner
-    constructor(address _lendingTracker) {
+    constructor(address _lendingTracker, address _swapRouter) {
         owner = msg.sender;
         lendingTracker = LendingTracker(_lendingTracker);
+        swapRouter = SwapRouter(payable(_swapRouter));
     }
 
     // Struct to track borrowing receipts for users
@@ -67,6 +72,7 @@ contract BorrowingTracker {
         uint256 apy;
     }
 
+    // Mappings
     mapping(address => mapping(address => uint256)) public collateral; // Collateral amount of specific token for user
     mapping(address => address[]) public collateralTokens; // All collateralized token addresses of user
 
@@ -128,9 +134,18 @@ contract BorrowingTracker {
      */
     function stakeCollateral(address tokenAddress, uint256 tokenAmount) public {
         // Checks if pool exists
-        (Pool poolAddress, ) = lendingTracker.tokenToPool(tokenAddress);
+        (Pool poolAddress, address priceAddress) = lendingTracker.tokenToPool(
+            tokenAddress
+        );
         if (address(poolAddress) == address(0)) {
             revert lendingTracker_poolNotAvailable();
+        }
+        //Staked collateral must have value of at least 100 eur when staked
+        if (
+            uint256(usdConverter(priceAddress)) * tokenAmount <
+            10000000000000000000000000000
+        ) {
+            revert BorrowingTracker_AmountOfCollateralTokenTooLow();
         }
         // Transfers tokens from user to the contract
         IERC20(tokenAddress).transferFrom(
@@ -157,6 +172,7 @@ contract BorrowingTracker {
      * @param tokenAddress The address of the token to unstake.
      * @param tokenAmount The amount of the token to unstake.
      */
+    // If amount of collateral is under 100e the user needs to unstake whole collateral
     function unstakeCollateral(
         address tokenAddress,
         uint256 tokenAmount
@@ -168,6 +184,15 @@ contract BorrowingTracker {
         ) {
             revert lendingTracker_addressNotAllowed();
         }
+        //Staked collateral must have value of at least 100 eur
+        (, address priceAddress) = lendingTracker.tokenToPool(tokenAddress);
+        if (
+            uint256(usdConverter(priceAddress)) *
+                collateral[msg.sender][tokenAddress] <
+            10000000000
+        ) {
+            tokenAmount = collateral[msg.sender][tokenAddress];
+        }
         // Decreases amount in mapping
         collateral[msg.sender][tokenAddress] -= tokenAmount;
         // Transfers the tokens to user
@@ -176,7 +201,10 @@ contract BorrowingTracker {
         if (collateral[msg.sender][tokenAddress] == 0) {
             for (uint256 i; i < collateralTokens[msg.sender].length; i++) {
                 if (collateralTokens[msg.sender][i] == tokenAddress) {
-                    delete collateralTokens[msg.sender][i];
+                    collateralTokens[msg.sender][i] = collateralTokens[
+                        msg.sender
+                    ][collateralTokens[msg.sender].length - 1];
+                    collateralTokens[msg.sender].pop();
                 }
             }
         }
@@ -208,7 +236,7 @@ contract BorrowingTracker {
         );
         if (tokenAmount != 0 && address(poolAddress) != address(0)) {
             int conversion = usdConverter(priceAddress);
-            collateralUSD += conversion * int(tokenAmount);
+            borrowedUSD += conversion * int(tokenAmount);
         }
         for (uint256 i; i < collateralTokens[user].length; i++) {
             address tokenAddress = collateralTokens[user][i];
@@ -261,59 +289,105 @@ contract BorrowingTracker {
         if (liquidityTreshold(userAddress, address(0), 0) <= ltv) {
             revert lendingTracker_addressNotAllowed();
         }
-        //Repay the borrowed amounts
-        /*
-        First: check if any collateral are the same as borrowed so we can just transferm, to avoid cost of swapping
-        Next: find the pools to swap tokens
-        Last: all remaining tokens get sent to caller
-        */
-        // First
-        // for (uint256 i; i < collateralTokens[userAddress].length; i++) {
-        //     for (uint256 a; a < borrowedTokens[userAddress].length; a++) {
-        //         if (
-        //             collateralTokens[userAddress][i] ==
-        //             borrowedTokens[userAddress][a]
-        //         ) {
-        //             // Collateral token Amount
-        //             uint256 collateralAmount = collateral[userAddress][
-        //                 collateralTokens[userAddress][i]
-        //             ];
-        //             address tokenAddress = collateralTokens[userAddress][i];
-        //             // Iterate through borrowing ids
-        //             for (
-        //                 uint256 c;
-        //                 c <
-        //                 userBorrowReceipts[userAddress][tokenAddress].length;
-        //                 c++
-        //             ) {
-        //                 uint256 id = userBorrowReceipts[userAddress][
-        //                     tokenAddress
-        //                 ][c];
-        //                 uint256 amount = borrowReceiptData[userAddress][id]
-        //                     .amount;
-        //                 uint256 totalAmount = accruedInterest(
-        //                     id,
-        //                     userAddress,
-        //                     amount
-        //                 ) + amount;
-        //                 if(collateralAmount - totalAmount >= 0){
-
-        //                 }
-        //             }
-        //         }
-        //     }
-        // }
-
-        // terminate user collateral and share it between the lenders
+        // Trade all collateral tokens for swap Token
+        uint256 balanceBeforeSwaps = address(this).balance;
+        uint256 swapTokenBalance;
         for (uint256 i; i < collateralTokens[userAddress].length; i++) {
-            collateral[msg.sender][collateralTokens[userAddress][i]] = 0;
-            delete collateralTokens[msg.sender][i];
+            address collateralToken = collateralTokens[userAddress][i];
+            uint256 userCollateral = collateral[userAddress][collateralToken];
+            if (collateralToken == swapToken) {
+                // If the collateral is swap Token
+                swapTokenBalance += userCollateral;
+            } else {
+                // See how much swap Token we get
+                uint256 swapAmount = swapRouter.getSwapAmount(
+                    collateralToken,
+                    swapToken,
+                    userCollateral
+                );
+                // Perform the swap
+                swapRouter.swapAsset(
+                    collateralToken,
+                    swapToken,
+                    userCollateral
+                );
+                // Update the amount of swapped tokens
+                swapTokenBalance += swapAmount;
+            }
+            // Delete collateral from storage
+            collateral[userAddress][collateralTokens[userAddress][i]] = 0;
+            collateralTokens[userAddress][i] = collateralTokens[userAddress][
+                collateralTokens[userAddress].length - 1
+            ];
+            collateralTokens[userAddress].pop();
         }
-        // Swap items, give the terminator reward
-        // Reward can be 0.25 of their collateral, due to payable function and node running
+        // Trade swap Token for all borrowed tokens
+        for (uint256 i; i < borrowedTokens[userAddress].length; i++) {
+            uint256 amountOfToken;
+            uint256 amountOfInterest;
+            address tokenAddress = borrowedTokens[userAddress][i];
+            // Get all borrowing receipts for the given token
+            for (
+                uint256 a;
+                a < userBorrowReceipts[userAddress][tokenAddress].length;
+                i++
+            ) {
+                uint256 borrowId = userBorrowReceipts[userAddress][
+                    tokenAddress
+                ][i];
+                uint256 tokenAmount = borrowReceiptData[userAddress][borrowId]
+                    .amount;
+                uint256 interest = accruedInterest(
+                    borrowId,
+                    userAddress,
+                    tokenAmount
+                );
+                amountOfToken += tokenAmount + interest;
+                amountOfInterest += interest;
+                // Delete the receipt
+                borrowReceiptData[userAddress][borrowId].amount = 0;
+                userBorrowReceipts[userAddress][tokenAddress][
+                    a
+                ] = userBorrowReceipts[userAddress][tokenAddress][
+                    userBorrowReceipts[userAddress][tokenAddress].length - 1
+                ];
+                userBorrowReceipts[userAddress][tokenAddress].pop();
+            }
+            if (tokenAddress == swapToken) {
+                swapTokenBalance -= amountOfToken;
+            } else {
+                // See how much swap Token we need to get borrowed amount
+                uint256 swapAmount = swapRouter.getSwapAmount(
+                    tokenAddress,
+                    swapToken,
+                    amountOfToken
+                );
+                // Perform the swap
+                swapRouter.swapAsset(swapToken, tokenAddress, swapAmount);
+                // Update the amount of swapped tokens
+                swapTokenBalance -= swapAmount;
+            }
+            // Transfer tokens to the pool and book interest
+            (Pool poolAddress, ) = lendingTracker.tokenToPool(tokenAddress);
+            IERC20(tokenAddress).transfer(address(poolAddress), amountOfToken);
+            poolAddress.bookYield(amountOfInterest);
+            // Delete borrowed token from storage
+            borrowedTokens[userAddress][i] = borrowedTokens[userAddress][
+                borrowedTokens[userAddress].length - 1
+            ];
+            borrowedTokens[userAddress].pop();
+        }
 
+        // Repay the terminator the 0.25(remaining tokens)
+        IERC20(swapToken).transfer(msg.sender, swapTokenBalance);
+        // Return the unnecessary fee, it gets transfered to borrowing contract from swap Router
+        uint256 balanceAfterSwaps = address(this).balance;
+        (bool sent, ) = payable(msg.sender).call{
+            value: balanceAfterSwaps - balanceBeforeSwaps
+        }("");
+        require(sent, "Failed to send Ether");
         // Event
-        emit collateralTerminated(userAddress);
+        emit collateralTerminated(userAddress, msg.sender);
     }
 
     /**
@@ -322,7 +396,7 @@ contract BorrowingTracker {
      * @param priceAddress Address of the Chainlink price feed for the token.
      * @return int The USD value of the token amount based on the latest price feed data.
      */
-    function usdConverter(address priceAddress) public view returns (int) {
+    function usdConverter(address priceAddress) internal view returns (int) {
         (, int answer, , , ) = AggregatorV3Interface(priceAddress)
             .latestRoundData();
         return answer;
@@ -338,7 +412,7 @@ contract BorrowingTracker {
     function newTokenChecker(
         address[] memory userTokens,
         address token
-    ) public pure returns (bool) {
+    ) internal pure returns (bool) {
         bool newToken = true;
         for (uint256 i; i < userTokens.length; i++) {
             if (token == userTokens[i]) {
@@ -381,13 +455,21 @@ contract BorrowingTracker {
                 i++
             ) {
                 if (userBorrowReceipts[msg.sender][tokenAddress][i] == id) {
-                    delete userBorrowReceipts[msg.sender][tokenAddress][i];
+                    userBorrowReceipts[msg.sender][tokenAddress][
+                        i
+                    ] = userBorrowReceipts[msg.sender][tokenAddress][
+                        userBorrowReceipts[msg.sender][tokenAddress].length - 1
+                    ];
+                    userBorrowReceipts[msg.sender][tokenAddress].pop();
                 }
             }
             if (userBorrowReceipts[msg.sender][tokenAddress].length == 0) {
                 for (uint256 i; i < borrowedTokens[msg.sender].length; i++) {
                     if (borrowedTokens[msg.sender][i] == tokenAddress) {
-                        delete borrowedTokens[msg.sender][i];
+                        borrowedTokens[msg.sender][i] = borrowedTokens[
+                            msg.sender
+                        ][borrowedTokens[msg.sender].length - 1];
+                        borrowedTokens[msg.sender].pop();
                     }
                 }
             }
@@ -411,6 +493,12 @@ contract BorrowingTracker {
         uint256 receiptAPY = borrowReceiptData[_user][_id].apy;
         uint256 receiptTIME = borrowReceiptData[_user][_id].time;
         uint256 fullAmount = borrowReceiptData[_user][_id].amount;
+        if (receiptAPY == 0) {
+            return 0;
+        }
+        if (tokenAmount > fullAmount) {
+            revert BorrowingTracker_AmountTooHigh();
+        }
         // Pay the part of the interest the user is repaying
         uint256 borrowInterest = ((((tokenAmount * 100) / fullAmount) *
             receiptTIME *
@@ -425,4 +513,57 @@ contract BorrowingTracker {
         }
         swapRouter = SwapRouter(payable(_swapRouter));
     }
+
+    // This is for termination purposes
+    function addSwapToken(address newSwapToken) public {
+        swapToken = newSwapToken;
+    }
+
+    function getBorrowedTokens(
+        address user
+    ) public view returns (address[] memory) {
+        return borrowedTokens[user];
+    }
+
+    function getCollateralTokens(
+        address user
+    ) public view returns (address[] memory) {
+        return collateralTokens[user];
+    }
+
+    function getBorrowedReceipts(
+        address user
+    ) public view returns (uint256[] memory) {
+        // First pass: Calculate the total size needed for the memory array
+        uint256 totalSize = 0;
+        for (uint256 i = 0; i < borrowedTokens[user].length; i++) {
+            totalSize += userBorrowReceipts[user][borrowedTokens[user][i]]
+                .length;
+        }
+
+        // Allocate the memory array with the total size
+        uint256[] memory allBorrowedReceipts = new uint256[](totalSize);
+
+        // Second pass: Populate the memory array
+        uint256 currentIndex = 0;
+        for (uint256 i = 0; i < borrowedTokens[user].length; i++) {
+            for (
+                uint256 c = 0;
+                c < userBorrowReceipts[user][borrowedTokens[user][i]].length;
+                c++
+            ) {
+                allBorrowedReceipts[currentIndex] = userBorrowReceipts[user][
+                    borrowedTokens[user][i]
+                ][c];
+                currentIndex++;
+            }
+        }
+
+        return allBorrowedReceipts;
+    }
 }
+
+// ADD minimum 100usd collateral - done!
+// Termination to swap Token and to borrowed - done!
+// Termination feature: the fees that need to get distributed back to terminator(payable) - done !
+// Add the check that only tokens that have pools available with swap Token can be deployed

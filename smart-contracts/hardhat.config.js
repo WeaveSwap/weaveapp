@@ -50,7 +50,7 @@ module.exports = {
     bscTestnet: {
       url: BSCTEST_RPC_URL,
       accounts: [PRIVATE_KEY],
-      chaindId: 97,
+      chainId: 97,
       blockConfirmations: 6,
     },
   },
