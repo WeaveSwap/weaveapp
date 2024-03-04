@@ -26,9 +26,16 @@ import {
   useWaitForTransactionReceipt,
   useWriteContract,
 } from "wagmi";
-import { erc20Abi, parseUnits } from "viem";
+import {
+  erc20Abi,
+  parseUnits,
+  parseEther,
+  formatEther,
+  formatUnits,
+} from "viem";
 import { toast } from "sonner";
 import { IconType } from "@/components";
+
 const assetName = ["Token A", "Token B", "Token C"] as const;
 type AssetName = (typeof assetName)[number];
 type TabType = "supply" | "borrow";
@@ -255,12 +262,15 @@ const columns: ColumnDef<Asset>[] = [
 
       const handleStakeCollateral = async () => {
         try {
-          await writeContractAsync({
+          await writeStakeCollateralAsync({
             abi: borrowAbi,
             address: borrow,
             functionName: "stakeCollateral",
             account: address,
-            args: [tokenCollateral.address, tokenCollateral.value],
+            args: [
+              tokenCollateral.address,
+              parseEther(tokenCollateral.value.toString()),
+            ],
           });
           toast.success("Collateral Staked succesfully");
           // table.reset();
@@ -277,7 +287,7 @@ const columns: ColumnDef<Asset>[] = [
             address: borrow,
             functionName: "borrowToken",
             account: address,
-            args: [token, inputAmount],
+            args: [token, parseEther(inputAmount.toString())],
           });
           toast.success("Token Borrowed succesfully");
           // table.reset();
@@ -464,7 +474,7 @@ const columns: ColumnDef<Asset>[] = [
                   {isCollateralApprovePending
                     ? "Approving collateral"
                     : isStakeCollateralPending
-                      ? "Confirming stake collateral..."
+                      ? "Approve stake collateral..."
                       : isBorrowPending
                         ? "Confirm borrow..."
                         : isCollateralApproving
@@ -588,7 +598,7 @@ const Lend = () => {
           Name: "Token A",
           Address: availableToken,
           Image: "/blylogo",
-          "Wallet Balance": tokenABalance?.toLocaleString("en-US") || "0",
+          "Wallet Balance": formatEther(BigInt(tokenABalance ?? 0)),
           APY: "3.23%",
           "Total Supplied": "20M",
           Action: "Supply",
@@ -598,7 +608,7 @@ const Lend = () => {
           Name: "Token B",
           Address: availableToken,
           Image: "/clylogo",
-          "Wallet Balance": tokenBBalance?.toLocaleString("en-US") || "0",
+          "Wallet Balance": formatEther(BigInt(tokenBBalance ?? 0)),
           APY: "3.23%",
           "Total Supplied": "20M",
           Action: "Supply",
@@ -608,7 +618,7 @@ const Lend = () => {
           Name: "Token C",
           Address: availableToken,
           Image: "/dotlogo",
-          "Wallet Balance": tokenCBalance?.toLocaleString("en-US") || "0",
+          "Wallet Balance": formatEther(BigInt(tokenCBalance ?? 0)),
           APY: "3.23%",
           "Total Supplied": "20M",
           Action: "Supply",
