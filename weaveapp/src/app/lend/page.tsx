@@ -1,5 +1,5 @@
 "use client";
-import { DataTable } from "@/components";
+import { DataTable, Header } from "@/components";
 import { Button, Icon, Input, Modal, Select } from "@/primitives";
 import { createUrl } from "@/utils";
 import * as Tabs from "@radix-ui/react-tabs";
@@ -250,7 +250,7 @@ const columns: ColumnDef<Asset>[] = [
             address: lend,
             functionName: "lendToken",
             account: address,
-            args: [token, inputAmount],
+            args: [token, parseEther(inputAmount.toString())],
           });
           toast.success("Token supplied succesfully");
           table.reset();
@@ -462,8 +462,9 @@ const columns: ColumnDef<Asset>[] = [
                     isBorrowPending ||
                     isStakeCollateralPending ||
                     isCollateralApprovePending ||
-                    !tokenCollateral.address ||
-                    !tokenCollateral.value
+                    // (action()=='supply' && (!inputAmount))
+                    (action() == "borrow" &&
+                      (!tokenCollateral.name || !tokenCollateral.value))
                   }
                   onClick={
                     action() == "borrow"
@@ -631,7 +632,8 @@ const Lend = () => {
   console.log("availableTokens", assets);
 
   return (
-    <main className="flex flex-col gap-3">
+    <main className="flex min-h-screen flex-col gap-3 bg-black p-10">
+      <Header />
       <div className="w-2/3">
         <h1 className="font-khand text-2xl font-bold text-white">
           Lock in your crypto assets to earn interest

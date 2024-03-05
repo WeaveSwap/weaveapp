@@ -9,7 +9,8 @@ describe("LendingAndBorrowingTest", () => {
     user,
     mintAmount,
     priceAggregator,
-    borrowingTracker;
+    borrowingTracker,
+    sampleToken;
   beforeEach("", async () => {
     //GET THE ACCOUNTS AND SET VARIABLES
     mintAmount = ethers.parseEther("1000");
@@ -20,6 +21,7 @@ describe("LendingAndBorrowingTest", () => {
 
     //GET THE CONTRACTS
     simpleToken = await ethers.getContract("TestToken1", deployer);
+    sampleToken = await ethers.getContract("TestToken2", deployer);
     lendingPool = await ethers.getContract("Pool", deployer);
     lendingTracker = await ethers.getContract("LendingTracker", deployer);
     priceAggregator = await ethers.getContract("MockV3Aggregator", deployer);
@@ -214,9 +216,18 @@ describe("LendingAndBorrowingTest", () => {
       beforeEach(async () => {
         await lendingTracker.addBorrowingContract(borrowingTracker.target);
         await lendingTracker.addTokenPool(simpleToken.target, priceAggregator);
+        await lendingTracker.addTokenPool(sampleToken.target, priceAggregator);
         await simpleToken.approve(lendingTracker.target, mintAmount);
         await lendingTracker.lendToken(
           simpleToken.target,
+          ethers.parseEther("500")
+        );
+        await sampleToken.approve(
+          lendingTracker.target,
+          ethers.parseEther("500")
+        );
+        await lendingTracker.lendToken(
+          sampleToken.target,
           ethers.parseEther("500")
         );
         const mappingResult = await lendingTracker.tokenToPool(
@@ -374,6 +385,30 @@ describe("LendingAndBorrowingTest", () => {
         expect(
           await simpleToken.balanceOf(lendingPoolContract.target)
         ).to.equal(ethers.parseEther("500"));
+      });
+      it("Supports multiple Tokens", async () => {
+        await simpleToken.approve(
+          borrowingTracker.target,
+          ethers.parseEther("100")
+        );
+        await sampleToken.approve(
+          borrowingTracker.target,
+          ethers.parseEther("100")
+        );
+        await borrowingTracker.stakeCollateral(
+          simpleToken.target,
+          ethers.parseEther("20")
+        );
+        await borrowingTracker.borrowToken(
+          simpleToken.target,
+          ethers.parseEther("5")
+        );
+        await expect(
+          borrowingTracker.borrowToken(
+            sampleToken.target,
+            ethers.parseEther("11")
+          )
+        ).to.be.reverted;
       });
     });
   });

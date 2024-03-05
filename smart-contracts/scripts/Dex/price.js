@@ -5,8 +5,8 @@ async function getPrice() {
   const { deployer } = await getNamedAccounts();
 
   const swapRouter = await ethers.getContract("SwapRouter", deployer);
-  const token1 = await ethers.getContract("TestToken1", deployer);
-  const token2 = await ethers.getContract("TestToken2", deployer);
+  const token1 = await ethers.getContract("TestToken2", deployer);
+  const token2 = await ethers.getContract("TestToken3", deployer);
   console.log(`This is the swap router address ${swapRouter.target}`);
   console.log(`This is the token1 address ${token1.target}`);
   console.log(`This is the token2 address ${token2.target}`);

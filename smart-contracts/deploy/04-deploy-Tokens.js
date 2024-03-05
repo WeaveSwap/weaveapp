@@ -62,4 +62,4 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
   }
 };
 
-module.exports.tags = ["tokens", "token", "dex"];
+module.exports.tags = ["tokens", "token", "dex", "bsc"];

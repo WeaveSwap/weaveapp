@@ -76,7 +76,7 @@ contract LendingTracker {
      * @param tokenAddress Address of the token for the new lending pool.
      * @param priceAddress Address of the Chainlink price feed for the token.
      */
-    function addTokenPool(address tokenAddress, address priceAddress) public {
+    function addTokenPool(address tokenAddress, address priceAddress) external {
         if (msg.sender != owner) {
             revert lendingTracker_addressNotAllowed();
         }
@@ -97,7 +97,7 @@ contract LendingTracker {
     function changePriceFeed(
         address tokenAddress,
         address priceAddress
-    ) public {
+    ) external {
         // Checks if address is allowed to call this
         if (msg.sender != owner) {
             revert lendingTracker_addressNotAllowed();
@@ -114,7 +114,7 @@ contract LendingTracker {
      * @param tokenAddress Address of the token whose lending pool APY is to be changed.
      * @param newAPY The new annual percentage yield for borrowing.
      */
-    function changeBorrowingAPY(address tokenAddress, uint256 newAPY) public {
+    function changeBorrowingAPY(address tokenAddress, uint256 newAPY) external {
         if (msg.sender != owner) {
             revert lendingTracker_addressNotAllowed();
         }
@@ -128,7 +128,7 @@ contract LendingTracker {
      * @param tokenAddress The address of the token being lent.
      * @param tokenAmount The amount of tokens the user is lending.
      */
-    function lendToken(address tokenAddress, uint256 tokenAmount) public {
+    function lendToken(address tokenAddress, uint256 tokenAmount) external {
         // Checks if pool exists
         if (address(tokenToPool[tokenAddress].poolAddress) == address(0)) {
             revert lendingTracker_poolNotAvailable();
@@ -166,7 +166,7 @@ contract LendingTracker {
     function withdrawLendedToken(
         address tokenAddress,
         uint256 tokenAmount
-    ) public {
+    ) external {
         // Checks if pool exists
         if (address(tokenToPool[tokenAddress].poolAddress) == address(0)) {
             revert lendingTracker_poolNotAvailable();
@@ -221,33 +221,42 @@ contract LendingTracker {
      * @dev Calculates the yield based on the amount lent and the time passed, then transfers the yield to the user.
      * @param tokenAddress The address of the token for which yield is being claimed.
      */
-    function getYield(address tokenAddress) public {
+    function getYield(address tokenAddress) external {
         uint256 yield = tokenToPool[tokenAddress].poolAddress.getYield(
             msg.sender,
             userLendedAmount[msg.sender][tokenAddress]
         );
-        IERC20(tokenAddress).transfer(msg.sender, yield);
-
         // Event
         emit userFarmedYield(msg.sender, tokenAddress, yield);
     }
 
-    function allAvailableTokens() public view returns (address[] memory) {
+    /**
+     * @notice Retrieves an array of all available tokens for lending and borrowing.
+     * @dev Provides a list of token addresses that users can interact with within the lending platform.
+     * @return An array containing the addresses of all available tokens.
+     */
+    function allAvailableTokens() external view returns (address[] memory) {
         return availableTokens;
     }
 
-    function addBorrowingContract(address newBorrowingContract) public {
+    /**
+     * @notice Sets the address of the borrowing contract.
+     * @dev Allows the owner to define the contract responsible for borrowing functionality.
+     * @param newBorrowingContract The address of the new borrowing contract.
+     */
+    function addBorrowingContract(address newBorrowingContract) external {
         borrowingContract = newBorrowingContract;
     }
 
-    // Get all loaned tokens based on user
+    /**
+     * @notice Retrieves an array of tokens that a user has lent to the lending pools.
+     * @dev Provides insight into the tokens a specific user has contributed for lending.
+     * @param user The address of the user whose lent tokens are being queried.
+     * @return An array containing the addresses of tokens lent by the user.
+     */
     function getLoanedTokens(
         address user
-    ) public view returns (address[] memory) {
+    ) external view returns (address[] memory) {
         return userLendedTokens[user];
     }
 }
-
-// Additional idea:
-// If yield number gets too high(uint256), we open up a new pool with same stats
-// If we make new pool with same token and price address we need to restore lended amount for each person(refreshPool())

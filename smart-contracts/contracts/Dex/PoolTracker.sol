@@ -6,11 +6,10 @@ pragma solidity ^0.8.9;
 import "./LiquidityPool.sol";
 import "@openzeppelin/contracts/interfaces/IERC20.sol";
 import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
+import "../Router/InterfaceBridge.sol";
 
 // Custom error definitions for specific failure conditions
-error PoolTracker_noTokensDetected();
 error PoolTracker_pairAlreadyExists();
-error PoolTracker_addressNotAllowed();
 error PoolTracker_cantSwapSameToken();
 
 /**
@@ -20,16 +19,28 @@ error PoolTracker_cantSwapSameToken();
  * Implements reentrancy guards to mitigate potential security vulnerabilities in contract interactions.
  */
 contract PoolTracker {
-    // The owner of the PoolTracker contract, set to the deployer.
-    address owner;
+    // Tracker for created pools, will add to database
+    event poolCreated(LiquidityPool pool, address assetOne, address assetTwo);
 
-    // Constructor: Sets the contract deployer as the owner.
-    constructor() {
-        owner = msg.sender;
-    }
+    // The owner of the PoolTracker contract, set to the deployer.
+    address private owner;
 
     // Reentrancy Guard
     bool internal locked;
+
+    // Hardcoded destination chain identifier and ZK Bridge address
+    uint16 public destinationChain = 23;
+    IZKBridge public zkBridge =
+        IZKBridge(0xb20F0105f3598652a3bE569132F7b3F341106dDC);
+
+    // Address of the yield calculator contract, for bridging computational parts.
+    address public yieldCalculator;
+
+    // Constructor: Sets the contract deployer as the owner.
+    constructor(address _yieldCalculator) {
+        owner = msg.sender;
+        yieldCalculator = _yieldCalculator;
+    }
 
     /**
      * @dev Modifier to prevent reentrancy attacks.
@@ -41,8 +52,12 @@ contract PoolTracker {
         locked = false;
     }
 
-    // Tracker for created pools, will add to database
-    event poolCreated(LiquidityPool pool, address assetOne, address assetTwo);
+    modifier onlyOwner() {
+        if (msg.sender != owner) {
+            revert();
+        }
+        _;
+    }
 
     // Mapping of pool Pairs, to store existing ones
     mapping(address => address[]) public poolPairs;
@@ -52,9 +67,6 @@ contract PoolTracker {
 
     // All the available tokens
     address[] public tokens;
-
-    // Mapping of pool per Owner
-    mapping(address => LiquidityPool[]) public poolOwner;
 
     /**
      * @dev Creates a liquidity pool for a given pair of ERC20 tokens. This function handles the initial
@@ -104,7 +116,6 @@ contract PoolTracker {
         // Add initial liquidity
         poolAddress.addInitialLiquidity(amountOne, amountTwo);
         // Update mappings
-        poolOwner[msg.sender].push(poolAddress);
         poolPairs[_assetOneAddress].push(_assetTwoAddress);
         poolPairs[_assetTwoAddress].push(_assetOneAddress);
         pairToPool[_assetOneAddress][_assetTwoAddress] = poolAddress;
@@ -143,7 +154,7 @@ contract PoolTracker {
      * @param tokenAddress The address of the token to check.
      * @return bool Returns true if the token is tracked, false otherwise.
      */
-    function tokenExists(address tokenAddress) public view returns (bool) {
+    function tokenExists(address tokenAddress) internal view returns (bool) {
         bool exist;
         for (uint256 i; i < tokens.length; i++) {
             if (tokenAddress == tokens[i]) {
@@ -170,10 +181,10 @@ contract PoolTracker {
      * @param tokenAddress The token for which to set the routing.
      * @param priceFeed The Chainlink price feed address for the token.
      */
-    function addRoutingAddress(address tokenAddress, address priceFeed) public {
-        if (msg.sender != owner) {
-            revert PoolTracker_addressNotAllowed();
-        }
+    function addRoutingAddress(
+        address tokenAddress,
+        address priceFeed
+    ) external onlyOwner {
         if (routingAddresses.length == 0) {
             routingAddresses.push(routingAddress(tokenAddress, priceFeed));
         } else {
@@ -204,7 +215,7 @@ contract PoolTracker {
     function tokenToRoute(
         address address1,
         address address2
-    ) public view returns (address) {
+    ) external view returns (address) {
         if (address1 == address2) {
             revert PoolTracker_cantSwapSameToken();
         }
@@ -258,7 +269,37 @@ contract PoolTracker {
      *
      * @return array Returns tokens array.
      */
-    function tokenList() public view returns (address[] memory) {
+    function tokenList() external view returns (address[] memory) {
         return tokens;
+    }
+
+    /**
+     * @dev Returns length or routingAddresses array
+     *
+     * @return uint256 Returns length.
+     */
+    function getRoutingAddressesLength() external view returns (uint256) {
+        return routingAddresses.length;
+    }
+
+    /**
+     * @dev Returns length or poolPairs array
+     *
+     * @return uint256 Returns length.
+     */
+    function getPoolPairsLength(
+        address tokenAddress
+    ) external view returns (uint256) {
+        return poolPairs[tokenAddress].length;
+    }
+
+    /**
+     * @dev owner can withdraw the fees to deposit to yield Calculator
+     */
+    function withdrawEther() external onlyOwner {
+        (bool sent, ) = payable(msg.sender).call{value: address(this).balance}(
+            ""
+        );
+        require(sent, "Failed to send Ether");
     }
 }

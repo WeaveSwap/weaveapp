@@ -1,9 +1,10 @@
 "use client";
-import { Swap } from "@/components";
+import { Header, Swap } from "@/components";
 
 const Page = () => {
   return (
-    <main>
+    <main className="min-h-screen gap-10 flex flex-col bg-black p-10">
+      <Header />
       <Swap />
     </main>
   );

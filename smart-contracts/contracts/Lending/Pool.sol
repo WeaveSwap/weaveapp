@@ -69,7 +69,7 @@ contract Pool {
      * @notice Allows the owner to borrow tokens from the reserve.
      * @param amount The amount of tokens to borrow.
      */
-    function borrow(uint256 amount) public onlyOwner {
+    function borrow(uint256 amount) external onlyOwner {
         if (reserve - amount < 0) {
             revert lending_outOfReserve();
         }
@@ -80,7 +80,7 @@ contract Pool {
      * @notice Allows the owner to lend tokens to the contract.
      * @param amount The amount of tokens to lend.
      */
-    function lend(uint256 amount) public onlyOwner {
+    function lend(uint256 amount) external onlyOwner {
         token.transferFrom(msg.sender, address(this), amount);
         reserve += amount;
     }
@@ -89,7 +89,7 @@ contract Pool {
      * @notice Sets the borrowing APY.
      * @param newAPY The new APY value.
      */
-    function setBorrowingAPY(uint256 newAPY) public onlyOwner {
+    function setBorrowingAPY(uint256 newAPY) external onlyOwner {
         borrowingAPY = newAPY;
     }
 
@@ -98,7 +98,7 @@ contract Pool {
      * @param user The address of the user.
      * @return bool True if enough time has passed, false otherwise.
      */
-    function isTime(address user) public view returns (bool) {
+    function isTime(address user) internal view returns (bool) {
         lastYieldFarmedTime[user];
         uint256 currentStamp = block.timestamp;
         if ((lastYieldFarmedTime[user] + 1 days) < currentStamp) {
@@ -113,7 +113,7 @@ contract Pool {
      * This function allows the owner to withdraw tokens from the available reserve, reducing the reserve balance.
      * @param amount The amount of tokens to withdraw from the reserve.
      */
-    function withdraw(uint256 amount) public onlyOwner {
+    function withdraw(uint256 amount) external onlyOwner {
         if (reserve - amount < 0) {
             revert lending_reserveNotAvailable();
         }
@@ -131,7 +131,7 @@ contract Pool {
     function getYield(
         address user,
         uint256 tokenAmount
-    ) public onlyOwner returns (uint256) {
+    ) external onlyOwner returns (uint256) {
         if (isTime(user) == false) {
             revert lending_notEnoughTimePassed();
         }
@@ -146,11 +146,12 @@ contract Pool {
         }
         yieldTaken[msg.sender] += availableYield;
         farmedYield += availableYield;
+        token.transfer(user, yield);
         return availableYield;
     }
 
     // To book how much yield came to the contract
-    function bookYield(uint256 _yield) public onlyOwner {
+    function bookYield(uint256 _yield) external onlyOwner {
         yield += _yield;
     }
 }

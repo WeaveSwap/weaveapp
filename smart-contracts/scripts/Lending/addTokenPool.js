@@ -5,7 +5,9 @@ async function addTokenPool() {
   const { deployer } = await getNamedAccounts();
   const lendingTracker = await ethers.getContract("LendingTracker", deployer);
   const mockPriceFeed = await ethers.getContract("MockV3Aggregator");
-  const token = await ethers.getContract("TestToken1", deployer);
+  const token = await ethers.getContract("TestToken3", deployer);
+  console.log(`Token address ${token.target}`);
+  console.log(`Mock price feed address ${mockPriceFeed.target}`);
   console.log("Connected to the contract!");
 
   console.log("Deploying the pool...");

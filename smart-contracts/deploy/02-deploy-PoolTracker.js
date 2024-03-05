@@ -6,7 +6,8 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
   const { deployer } = await getNamedAccounts();
   const { deploy, log } = deployments;
 
-  let args = [];
+  const yieldCalculator = await ethers.getContract("YieldCalculator");
+  let args = [yieldCalculator.target];
 
   const blockConfirmations = developmentChains.includes(network.name) ? 0 : 6;
 
@@ -28,4 +29,4 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
   }
 };
 
-module.exports.tags = ["PoolTracker", "all", "dex"];
+module.exports.tags = ["PoolTracker", "all", "dex", "bsc"];

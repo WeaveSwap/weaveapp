@@ -30,7 +30,7 @@ module.exports = async () => {
     await verify(
       liquidityPool.address,
       args,
-      "contracts/LiquidityPool.sol:LiquidityPool"
+      "contracts/Dex/LiquidityPool.sol:LiquidityPool"
     );
   }
 };

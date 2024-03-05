@@ -1,4 +1,5 @@
-import type { Config } from "tailwindcss";
+import { type Config } from "tailwindcss";
+import { fontFamily } from "tailwindcss/defaultTheme";
 
 const config = {
   darkMode: ["class"],
@@ -19,9 +20,11 @@ const config = {
     },
     extend: {
       fontFamily: {
-        sans: ["var(--font-inter)", "ui-sans-serif", "system-ui"],
+        sans: ["var(--font-sans)", ...fontFamily.sans],
         kavoon: ["var(--font-kavoon)", "ui-serif", "Georgia"],
         khand: ["var(--font-khand)", "ui-serif", "Georgia"],
+        hubotsans_bold: "hubotsans-bold",
+        hubotsans_regular: "hubotsans-regular",
       },
       colors: {
         border: "hsl(var(--border))",
@@ -84,6 +87,9 @@ const config = {
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+      },
+      backgroundImage: {
+        background1: "url('/Banner.jpeg')",
       },
     },
   },

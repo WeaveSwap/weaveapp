@@ -1,13 +1,14 @@
 [
     {
-      "inputs": [],
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_yieldCalculator",
+          "type": "address"
+        }
+      ],
       "stateMutability": "nonpayable",
       "type": "constructor"
-    },
-    {
-      "inputs": [],
-      "name": "PoolTracker_addressNotAllowed",
-      "type": "error"
     },
     {
       "inputs": [],
@@ -91,6 +92,19 @@
       "type": "function"
     },
     {
+      "inputs": [],
+      "name": "destinationChain",
+      "outputs": [
+        {
+          "internalType": "uint16",
+          "name": "",
+          "type": "uint16"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
       "inputs": [
         {
           "internalType": "address",
@@ -118,21 +132,29 @@
       "inputs": [
         {
           "internalType": "address",
-          "name": "",
-          "type": "address"
-        },
-        {
-          "internalType": "address",
-          "name": "",
+          "name": "tokenAddress",
           "type": "address"
         }
       ],
-      "name": "pairToPool",
+      "name": "getPoolPairsLength",
       "outputs": [
         {
-          "internalType": "contract LiquidityPool",
+          "internalType": "uint256",
           "name": "",
-          "type": "address"
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getRoutingAddressesLength",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
         }
       ],
       "stateMutability": "view",
@@ -146,12 +168,12 @@
           "type": "address"
         },
         {
-          "internalType": "uint256",
+          "internalType": "address",
           "name": "",
-          "type": "uint256"
+          "type": "address"
         }
       ],
-      "name": "poolOwner",
+      "name": "pairToPool",
       "outputs": [
         {
           "internalType": "contract LiquidityPool",
@@ -211,25 +233,6 @@
       "type": "function"
     },
     {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "tokenAddress",
-          "type": "address"
-        }
-      ],
-      "name": "tokenExists",
-      "outputs": [
-        {
-          "internalType": "bool",
-          "name": "",
-          "type": "bool"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
       "inputs": [],
       "name": "tokenList",
       "outputs": [
@@ -278,6 +281,39 @@
       "outputs": [
         {
           "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "withdrawEther",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "yieldCalculator",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "zkBridge",
+      "outputs": [
+        {
+          "internalType": "contract IZKBridge",
           "name": "",
           "type": "address"
         }

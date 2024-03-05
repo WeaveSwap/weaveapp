@@ -32,4 +32,4 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
   }
 };
 
-module.exports.tags = ["SwapRouter", "WeaveSwap", "all", "dex"];
+module.exports.tags = ["SwapRouter", "WeaveSwap", "all", "dex", "bsc"];

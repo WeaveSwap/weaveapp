@@ -1,7 +1,7 @@
 import { poolAbi, swapAbi, lendAbi, lendingPoolAbi, borrowAbi } from "./abis";
 
 const lend = "0x15D7BdFc3Afc61544c6D9085dC4235f15B85a4C4";
-const borrow = "0x9A2ea8a129d5159fb98ce0FAa7761109E68819D0";
+const borrow = "0xf95269C39EBaF3D75d3Fa67E2cCeDcB791507D28";
 const pool = "0x67A9732d92A0EbcC78d63E7bFF78689a5F8825D2";
 const tokenA = "0x1F06aB1B322AcF25D52f9210c227692B8Bfac58F";
 const tokenB = "0xFcf351591C7A9D081D5b9c37Bbec3062EE03E235";

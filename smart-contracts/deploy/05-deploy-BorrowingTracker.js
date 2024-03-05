@@ -32,4 +32,4 @@ module.exports = async () => {
   }
 };
 
-module.exports.tags = ["all", "borrowingTracker", "tracker", "lending"];
+module.exports.tags = ["all", "borrowingTracker", "tracker", "lending", "bsc"];

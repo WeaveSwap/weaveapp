@@ -75,6 +75,21 @@
   }
 }
 
+@font-face {
+  font-family: hubotsans-bold;
+  src: url("../fonts/hubotsans/bold.otf") format("opentype");
+}
+
+@font-face {
+  font-family: hubotsans-light;
+  src: url("../fonts/hubotsans/light.otf") format("opentype");
+}
+
+@font-face {
+  font-family: hubotsans-regular;
+  src: url("../fonts/hubotsans/regular.otf") format("opentype");
+}
+
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
   -webkit-appearance: none;

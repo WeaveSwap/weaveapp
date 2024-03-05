@@ -5,7 +5,7 @@ async function deployPool() {
   const { deployer } = await getNamedAccounts();
   const poolTracker = await ethers.getContract("PoolTracker", deployer);
   const token1 = await ethers.getContract("TestToken1", deployer);
-  const token2 = await ethers.getContract("TestToken2", deployer);
+  const token2 = await ethers.getContract("TestToken3", deployer);
   const swapRouter = await ethers.getContract("SwapRouter", deployer);
   // const token3 = await ethers.getContract("TestToken2", deployer);
   console.log(`This is the pool tracker address ${poolTracker.target}`);
@@ -28,8 +28,16 @@ async function deployPool() {
   // console.log(
   //   `This is the deployer token2 balance ${await token3.balanceOf(deployer)}`
   // );
-  await token1.approve(poolTracker.target, ethers.parseEther("10"));
-  await token2.approve(poolTracker.target, ethers.parseEther("10"));
+  const txApprove1 = await token1.approve(
+    poolTracker.target,
+    ethers.parseEther("30")
+  );
+  await txApprove1.wait(1);
+  const txApprove2 = await token2.approve(
+    poolTracker.target,
+    ethers.parseEther("30")
+  );
+  await txApprove2.wait(1);
   console.log(
     `This is the deployer token1 allowance ${await token1.allowance(
       deployer,
@@ -42,20 +50,15 @@ async function deployPool() {
       poolTracker.target
     )}`
   );
-  // console.log(
-  //   `This is the deployer token3 allowance ${await token3.allowance(
-  //     deployer,
-  //     poolTracker.target
-  //   )}`
-  // );
   console.log("Tokens approved!");
   console.log("Creating Pool...");
-  await poolTracker.createPool(
+  const tx = await poolTracker.createPool(
     token1.target,
     token2.target,
-    ethers.parseEther("10"),
-    ethers.parseEther("10")
+    ethers.parseEther("20"),
+    ethers.parseEther("20")
   );
+  await tx.wait(1);
   console.log("Pool deployed!");
 }
 

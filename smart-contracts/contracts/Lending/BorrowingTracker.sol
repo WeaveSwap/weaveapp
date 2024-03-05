@@ -89,7 +89,7 @@ contract BorrowingTracker {
      * @param tokenAddress The address of the token the user wishes to borrow.
      * @param tokenAmount The amount of tokens the user wants to borrow.
      */
-    function borrowToken(address tokenAddress, uint256 tokenAmount) public {
+    function borrowToken(address tokenAddress, uint256 tokenAmount) external {
         // Checks if the pool exists
         (Pool poolAddress, ) = lendingTracker.tokenToPool(tokenAddress);
         if (address(poolAddress) == address(0)) {
@@ -132,7 +132,10 @@ contract BorrowingTracker {
      * @param tokenAddress The address of the token being staked as collateral.
      * @param tokenAmount The amount of the token to stake.
      */
-    function stakeCollateral(address tokenAddress, uint256 tokenAmount) public {
+    function stakeCollateral(
+        address tokenAddress,
+        uint256 tokenAmount
+    ) external {
         // Checks if pool exists
         (Pool poolAddress, address priceAddress) = lendingTracker.tokenToPool(
             tokenAddress
@@ -143,7 +146,7 @@ contract BorrowingTracker {
         //Staked collateral must have value of at least 100 eur when staked
         if (
             uint256(usdConverter(priceAddress)) * tokenAmount <
-            10000000000000000000000000000
+            10000000000000000000000000000 // 18(token) + 8(price feed)
         ) {
             revert BorrowingTracker_AmountOfCollateralTokenTooLow();
         }
@@ -176,7 +179,7 @@ contract BorrowingTracker {
     function unstakeCollateral(
         address tokenAddress,
         uint256 tokenAmount
-    ) public {
+    ) external {
         // Checks if amount is too high and if the user is borrowing any tokens
         if (
             collateral[msg.sender][tokenAddress] - tokenAmount < 0 &&
@@ -280,11 +283,12 @@ contract BorrowingTracker {
     }
 
     /**
-     * @notice Initiates the liquidation of a user's collateral if their LTV ratio exceeds the maximum permitted value.
+     * @notice Initiates the liquidation of a user's collateral if their LTV ratio exceeds the maximum permitted value, the terminator get the remaining collateral.
      * @dev Meant to be called by an external mechanism (like a keeper) that monitors LTV ratios.
+     *
      * @param userAddress The address of the user whose collateral is being liquidated.
      */
-    function terminateCollateral(address userAddress) public payable {
+    function terminateCollateral(address userAddress) external payable {
         // Check if the ltv is too high, if it is not reverts
         if (liquidityTreshold(userAddress, address(0), 0) <= ltv) {
             revert lendingTracker_addressNotAllowed();
@@ -428,7 +432,7 @@ contract BorrowingTracker {
      * @param id The unique identifier of the borrow receipt.
      * @param tokenAmount The amount of the borrowed token being returned.
      */
-    function returnBorrowedToken(uint256 id, uint256 tokenAmount) public {
+    function returnBorrowedToken(uint256 id, uint256 tokenAmount) external {
         if (borrowReceiptData[msg.sender][id].amount == 0) {
             revert lendingTracker_receiptDoesntExist();
         }
@@ -484,7 +488,14 @@ contract BorrowingTracker {
         );
     }
 
-    // Accrued interest on loan
+    /**
+     * @notice Computes the accrued interest on a loan.
+     * @dev Calculates interest based on the borrowing APY and time elapsed since the token was borrowed.
+     * @param _id The unique identifier of the borrow receipt.
+     * @param _user The address of the borrower.
+     * @param tokenAmount The amount of the borrowed token being returned.
+     * @return uint256 The accrued interest.
+     */
     function accruedInterest(
         uint256 _id,
         address _user,
@@ -506,7 +517,11 @@ contract BorrowingTracker {
         return borrowInterest;
     }
 
-    // Add Swap router
+    /**
+     * @notice Allows the owner to set the SwapRouter contract address.
+     * @dev Only the owner can call this function.
+     * @param _swapRouter The address of the new SwapRouter contract.
+     */
     function addSwapRouter(address _swapRouter) public {
         if (msg.sender != owner) {
             revert lending_addressNotAllowed();
@@ -514,26 +529,48 @@ contract BorrowingTracker {
         swapRouter = SwapRouter(payable(_swapRouter));
     }
 
-    // This is for termination purposes
-    function addSwapToken(address newSwapToken) public {
+    /**
+     * @notice Sets the swap token address for liquidations.
+     * @dev Only the owner can call this function.
+     * @param newSwapToken The address of the new swap token.
+     */
+    function addSwapToken(address newSwapToken) external {
+        if (msg.sender != owner) {
+            revert lending_addressNotAllowed();
+        }
         swapToken = newSwapToken;
     }
 
+    /**
+     * @notice Retrieves an array of token addresses borrowed by a user.
+     * @param user The address of the user.
+     * @return address[] An array of borrowed token addresses.
+     */
     function getBorrowedTokens(
         address user
-    ) public view returns (address[] memory) {
+    ) external view returns (address[] memory) {
         return borrowedTokens[user];
     }
 
+    /**
+     * @notice Retrieves an array of token addresses used as collateral by a user.
+     * @param user The address of the user.
+     * @return address[] An array of collateral token addresses.
+     */
     function getCollateralTokens(
         address user
-    ) public view returns (address[] memory) {
+    ) external view returns (address[] memory) {
         return collateralTokens[user];
     }
 
+    /**
+     * @notice Retrieves an array of borrow receipt IDs for a user.
+     * @param user The address of the user.
+     * @return uint256[] An array of borrow receipt IDs.
+     */
     function getBorrowedReceipts(
         address user
-    ) public view returns (uint256[] memory) {
+    ) external view returns (uint256[] memory) {
         // First pass: Calculate the total size needed for the memory array
         uint256 totalSize = 0;
         for (uint256 i = 0; i < borrowedTokens[user].length; i++) {
@@ -562,8 +599,3 @@ contract BorrowingTracker {
         return allBorrowedReceipts;
     }
 }
-
-// ADD minimum 100usd collateral - done!
-// Termination to swap Token and to borrowed - done!
-// Termination feature: the fees that need to get distributed back to terminator(payable) - done !
-// Add the check that only tokens that have pools available with swap Token can be deployed

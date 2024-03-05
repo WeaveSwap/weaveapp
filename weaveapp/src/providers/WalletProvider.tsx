@@ -1,5 +1,4 @@
 "use client";
-import { Header } from "@/components";
 import { RainbowKitProvider, getDefaultConfig } from "@rainbow-me/rainbowkit";
 import "@rainbow-me/rainbowkit/styles.css";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -46,19 +45,17 @@ const config = getDefaultConfig({
 const queryClient = new QueryClient();
 
 const WalletProvider = ({ children }: { children: React.ReactNode }) => {
-  const path = usePathname();
 
   return (
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
         <RainbowKitProvider>
           <Toaster richColors position="top-center" closeButton />
-          <main
-            className={`p-5 ${path !== "/" && "bg-black"} flex min-h-[100vh] flex-col justify-between gap-10`}
+          {/* <main
+            className={`p-5 ${path !== "/" ? "justify-between gap-10 bg-black" : " "} flex min-h-[100vh] flex-col `}
           >
-            <Header />
+          </main> */}
             {children}
-          </main>
         </RainbowKitProvider>
       </QueryClientProvider>
     </WagmiProvider>

@@ -7,17 +7,18 @@ import "./PoolTracker.sol";
 import "./LiquidityPool.sol";
 import "@openzeppelin/contracts/interfaces/IERC20.sol";
 
-// Error declaration for unswappable token pairs
+// Custom errors for specific failure modes, enhancing gas efficiency and error clarity.
 error SwapRouter_tokensCantBeSwapped();
 error SwapRouter_needToCallExistingFunction();
 
 /**
  * @title SwapRouter
- * @dev Facilitates token swaps utilizing defined liquidity pools, offering direct swaps and routed swaps through an intermediary.
- * Leverages the PoolTracker contract to access liquidity pool information and perform asset exchanges.
+ * @dev This contract facilitates token swaps by interacting with liquidity pools.
+ * It supports direct swaps between two tokens in a single pool, or routed swaps through an intermediary token.
+ * Utilizes the PoolTracker contract to find liquidity pools and perform the necessary asset exchanges.
  */
 contract SwapRouter {
-    // Emitted after a successful token swap
+    // Event emitted after successful token swaps, providing auditability and transparency of operations.
     event swap(
         address userAddress,
         address address1,
@@ -43,7 +44,8 @@ contract SwapRouter {
     }
 
     /**
-     * @param tracker Address of the PoolTracker contract instance.
+     * @notice Constructs the SwapRouter and initializes the PoolTracker reference.
+     * @param tracker The PoolTracker contract address.
      */
     constructor(address tracker) {
         poolTracker = PoolTracker(tracker);
@@ -103,44 +105,36 @@ contract SwapRouter {
                 address2,
                 routingToken
             );
-            uint256 startingBalance = IERC20(routingToken).balanceOf(
-                address(this)
-            );
-            uint256 startingBalance2 = IERC20(address2).balanceOf(
-                address(this)
-            );
+            uint256 routingTokenAmount;
             //SWAP 1, input token into routing  token
+            IERC20(address1).transferFrom(
+                msg.sender,
+                address(this),
+                inputAmount
+            );
+            IERC20(address1).approve(address(pool1), inputAmount);
             if (pool1.assetOneAddress() == address1) {
-                IERC20(address1).transferFrom(
-                    msg.sender,
-                    address(this),
+                routingTokenAmount = pool1.sellAssetOne{value: pool1.swapFee()}(
                     inputAmount
                 );
-                IERC20(address1).approve(address(pool1), inputAmount);
-                pool1.sellAssetOne{value: pool1.swapFee()}(inputAmount);
             } else {
-                IERC20(address1).transferFrom(
-                    msg.sender,
-                    address(this),
+                routingTokenAmount = pool1.sellAssetTwo{value: pool1.swapFee()}(
                     inputAmount
                 );
-                IERC20(address1).approve(address(pool1), inputAmount);
-                pool1.sellAssetTwo{value: pool1.swapFee()}(inputAmount);
             }
             //SWAP 2, routing token into output token
-            uint256 routingTokenInput = IERC20(routingToken).balanceOf(
-                address(this)
-            ) - startingBalance;
-            if (pool2.assetOneAddress() == address1) {
-                IERC20(routingToken).approve(address(pool2), routingTokenInput);
-                pool2.sellAssetOne{value: pool2.swapFee()}(routingTokenInput);
+            uint256 amountOutput;
+            IERC20(routingToken).approve(address(pool2), routingTokenAmount);
+            if (pool2.assetOneAddress() == routingToken) {
+                amountOutput = pool2.sellAssetOne{value: pool2.swapFee()}(
+                    routingTokenAmount
+                );
             } else {
-                IERC20(routingToken).approve(address(pool2), routingTokenInput);
-                pool2.sellAssetTwo{value: pool2.swapFee()}(routingTokenInput);
+                amountOutput = pool2.sellAssetTwo{value: pool2.swapFee()}(
+                    routingTokenAmount
+                );
             }
-            uint256 address2Output = IERC20(address2).balanceOf(address(this)) -
-                startingBalance2;
-            IERC20(address2).transfer(msg.sender, address2Output);
+            IERC20(address2).transfer(msg.sender, amountOutput);
             // Unrequired fee
             uint256 unrequiredFee = msg.value -
                 pool1.swapFee() -
@@ -192,32 +186,39 @@ contract SwapRouter {
         return output;
     }
 
-    // function getSwapFee(
-    //     address address1,
-    //     address address2
-    // ) public view returns (uint256) {
-    //     uint256 fee;
-    //     if (poolTracker.exists(address1, address2)) {
-    //         LiquidityPool pool = poolTracker.pairToPool(address1, address2);
-    //         fee += pool.swapFee();
-    //     } else if (poolTracker.tokenToRoute(address1, address2) != address(0)) {
-    //         address routingToken = poolTracker.tokenToRoute(address1, address2);
-    //         LiquidityPool pool1 = poolTracker.pairToPool(
-    //             address1,
-    //             routingToken
-    //         );
-    //         LiquidityPool pool2 = poolTracker.pairToPool(
-    //             address2,
-    //             routingToken
-    //         );
-    //         fee += pool1.swapFee();
-    //         fee += pool2.swapFee();
-    //     } else {
-    //         // Assets cant be swapped directly nor routed
-    //         revert SwapRouter_tokensCantBeSwapped();
-    //     }
-    //     return fee;
-    // }
+    /**
+     * @notice Retrieves the swap fee required for a swap between `address1` and `address2`.
+     * @dev Calculates the total swap fee, accounting for both direct and routed swaps, by querying the associated pools.
+     * @param address1 The source token address.
+     * @param address2 The destination token address.
+     * @return fee The total swap fee for the transaction.
+     */
+    function getSwapFee(
+        address address1,
+        address address2
+    ) public view returns (uint256) {
+        uint256 fee;
+        if (poolTracker.exists(address1, address2)) {
+            LiquidityPool pool = poolTracker.pairToPool(address1, address2);
+            fee += pool.swapFee();
+        } else if (poolTracker.tokenToRoute(address1, address2) != address(0)) {
+            address routingToken = poolTracker.tokenToRoute(address1, address2);
+            LiquidityPool pool1 = poolTracker.pairToPool(
+                address1,
+                routingToken
+            );
+            LiquidityPool pool2 = poolTracker.pairToPool(
+                address2,
+                routingToken
+            );
+            fee += pool1.swapFee();
+            fee += pool2.swapFee();
+        } else {
+            // Assets cant be swapped directly nor routed
+            revert SwapRouter_tokensCantBeSwapped();
+        }
+        return fee;
+    }
 
     /**
      * @dev Fallback function if address calls unexisting function, but contains msg.data

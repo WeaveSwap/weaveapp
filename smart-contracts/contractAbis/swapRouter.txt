@@ -96,6 +96,30 @@
           "internalType": "address",
           "name": "address2",
           "type": "address"
+        }
+      ],
+      "name": "getSwapFee",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "address1",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "address2",
+          "type": "address"
         },
         {
           "internalType": "uint256",

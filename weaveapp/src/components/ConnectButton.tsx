@@ -3,7 +3,14 @@ import makeBlockie from "ethereum-blockies-base64";
 import Image from "next/image";
 import { Button } from "@/primitives";
 import { FaChevronDown } from "react-icons/fa";
-export const WalletConnectButton = ({ className = "" }) => {
+
+export const WalletConnectButton = ({
+  className,
+  isHome,
+}: {
+  className?: string;
+  isHome: boolean;
+}) => {
   return (
     <ConnectButton.Custom>
       {({
@@ -38,6 +45,7 @@ export const WalletConnectButton = ({ className = "" }) => {
                     onClick={openConnectModal}
                     type="button"
                     variant="primary"
+                    isHome={isHome}
                   >
                     Connect Wallet
                   </Button>
@@ -49,6 +57,7 @@ export const WalletConnectButton = ({ className = "" }) => {
                     onClick={openChainModal}
                     type="button"
                     variant="primary"
+                    isHome={isHome}
                   >
                     Wrong network
                   </Button>

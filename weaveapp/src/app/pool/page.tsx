@@ -1,5 +1,5 @@
 "use client";
-import { DataTable } from "@/components";
+import { DataTable, Header } from "@/components";
 import { Button, Input, Modal } from "@/primitives";
 import { ColumnDef } from "@tanstack/react-table";
 import Image from "next/image";
@@ -206,7 +206,9 @@ const columns: ColumnDef<Pool>[] = [
               <div className="rounded-md bg-grey-1/30 p-4">
                 <div className="flex items-center justify-between">
                   <span className="flex items-center gap-1">
-                    <p className="text-sm font-semibold text-grey-1">First asset</p>
+                    <p className="text-sm font-semibold text-grey-1">
+                      First asset
+                    </p>
                   </span>
                   <span className="flex items-center gap-1">
                     <p className="text-sm font-semibold text-grey-1">
@@ -245,7 +247,9 @@ const columns: ColumnDef<Pool>[] = [
               <div className="rounded-md bg-grey-1/30 p-4">
                 <div className="flex items-center justify-between">
                   <span className="flex items-center gap-1">
-                    <p className="text-sm font-semibold text-grey-1">Second asset</p>
+                    <p className="text-sm font-semibold text-grey-1">
+                      Second asset
+                    </p>
                   </span>
                   <span className="flex items-center gap-1">
                     <p className="text-sm font-semibold text-grey-1">
@@ -317,7 +321,8 @@ const columns: ColumnDef<Pool>[] = [
 
 const Page = () => {
   return (
-    <main className="flex flex-col gap-3">
+    <main className="flex min-h-screen flex-col gap-3 bg-black p-10">
+      <Header />
       <div className="w-2/3">
         <h1 className="font-khand text-2xl font-bold text-white">
           Put your funds to work by providing for launchpad liquidity
