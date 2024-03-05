@@ -24,6 +24,7 @@ import {
   useReadContract,
   useSimulateContract,
   useWaitForTransactionReceipt,
+  useWatchContractEvent,
   useWriteContract,
 } from "wagmi";
 import {
@@ -508,7 +509,8 @@ const Lend = () => {
   const router = useRouter();
   const pathname = usePathname();
   const { address } = useAccount();
-
+  const [isLendOrBorrow, setIsLendOrBorrow] = useState(false);
+  const [key, setKey] = useState(0);
   const action = (): TabType => {
     const optionSearchParams = new URLSearchParams(searchParams.toString());
     const action = optionSearchParams.get("action");
@@ -579,6 +581,31 @@ const Lend = () => {
     args: [address as `0x${string}`],
   });
 
+  useWatchContractEvent({
+    address: lend,
+    abi: lendAbi,
+    eventName: "userLended",
+    onLogs(logs) {
+      console.log("User Lended!", logs);
+      setIsLendOrBorrow(true);
+      setKey((prevKey) => prevKey + 1);
+      refetchTokenA();
+      refetchTokenB();
+      refetchTokenC();
+    },
+  });
+
+  useWatchContractEvent({
+    address: borrow,
+    abi: borrowAbi,
+    eventName: "userBorrowed",
+    onLogs(logs) {
+      console.log("User Borrowed!", logs);
+      setIsLendOrBorrow(true);
+      setKey((prevKey) => prevKey + 1);
+    },
+  });
+
   console.log("Pooldetail", Pooldetail);
   // console.log("borrowingAPY", borrowingAPY.toString());
 
@@ -630,6 +657,8 @@ const Lend = () => {
   }, [availableTokens, address]);
 
   console.log("availableTokens", assets);
+
+  useEffect(() => {}, [isLendOrBorrow, key]);
 
   return (
     <main className="flex min-h-screen flex-col gap-3 bg-black p-10">
