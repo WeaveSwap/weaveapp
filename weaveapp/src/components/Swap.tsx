@@ -2,11 +2,17 @@
 import { swap, swapAbi, tokenA, tokenB, tokenC } from "@/constants";
 import { Button, Input, Select } from "@/primitives";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { FaClockRotateLeft } from "react-icons/fa6";
 import { IoMdArrowDropdown, IoMdSettings } from "react-icons/io";
 import { toast } from "sonner";
-import { erc20Abi, parseUnits } from "viem";
+import {
+  erc20Abi,
+  parseUnits,
+  formatEther,
+  formatUnits,
+  parseEther,
+} from "viem";
 import {
   useAccount,
   useEstimateFeesPerGas,
@@ -61,8 +67,22 @@ const Swap = () => {
     address: swap,
     functionName: "getSwapAmount",
     account: address,
-    args: [tokenIn.address, tokenOut.address, inputAmount],
+    args: [
+      tokenIn.address,
+      tokenOut.address,
+      parseEther(inputAmount.toString()),
+    ],
   });
+
+  const { data: swapFee, isLoading: isSwapFeeLoading } = useReadContract({
+    abi: swapAbi,
+    address: swap,
+    functionName: "getSwapFee",
+    account: address,
+    args: [tokenIn.address, tokenOut.address],
+  });
+
+  const fee: bigint = useMemo(() => BigInt(swapFee as any|| 0), [swapFee]);
 
   const { data: tokenInBalance, refetch: refetchTokenIn } = useReadContract({
     address: tokenIn.address as `0x${string}`,
@@ -84,7 +104,7 @@ const Swap = () => {
     functionName: "swapAsset",
     account: address,
     args: [tokenIn.address, tokenOut.address, inputAmount],
-    value: parseUnits("10000000", 10),
+    value: parseEther(fee.toString()),
   });
 
   const {
@@ -108,6 +128,8 @@ const Swap = () => {
 
   console.log("simulatedError", simulatedError);
 
+  console.log("swapFee", swapFee);
+
   const { isLoading: isConfirming, isSuccess: isConfirmed } =
     useWaitForTransactionReceipt({
       hash,
@@ -121,7 +143,7 @@ const Swap = () => {
         functionName: "swapAsset",
         account: address,
         args: [tokenIn.address, tokenOut.address, inputAmount],
-        value: parseUnits("100000", 10),
+        value: parseEther(fee.toString()),
       });
       // if (isConfirmed) {
       // }
@@ -139,12 +161,12 @@ const Swap = () => {
     //   functionName: "approve",
     //   args: [swap as `0x${string}`, parseUnits("100", 10)],
     // });
-      // writeContract({
-      //   address: tokenIn.address as `0x${string}`,
-      //   abi: erc20Abi,
-      //   functionName: "approve",
-      //   args: [swap as `0x${string}`, parseUnits("100", 10)],
-      // });
+    // writeContract({
+    //   address: tokenIn.address as `0x${string}`,
+    //   abi: erc20Abi,
+    //   functionName: "approve",
+    //   args: [swap as `0x${string}`, parseUnits("100", 10)],
+    // });
     // }
   }, [tokenIn, tokenOut, inputAmount, outputAmount]);
 
@@ -216,7 +238,7 @@ const Swap = () => {
             </span>
             <span className="flex items-center gap-1">
               <p className="text-sm font-semibold text-grey-1">Wallet Bal</p>
-              <p>{tokenInBalance?.toString()}</p>
+              <p>{formatEther(tokenInBalance ?? BigInt(0))}</p>
               <Button variant="primary" className="h-3.5 w-5">
                 Max
               </Button>
@@ -228,6 +250,7 @@ const Swap = () => {
               <Input
                 id="valueIn"
                 type="number"
+                defaultValue={0}
                 onChange={(e) => setInputAmount(e.target.value)}
               />
               <p className="text-sm font-semibold text-grey-1">($4602.43)</p>
@@ -289,7 +312,7 @@ const Swap = () => {
             </span>
             <span className="flex items-center gap-1">
               <p className="text-sm font-semibold text-grey-1">Wallet Bal</p>
-              <p>{tokenOutBalance?.toString()}</p>
+              <p>{formatEther(tokenOutBalance ?? BigInt(0))}</p>
             </span>
           </div>
           <hr />
@@ -328,7 +351,7 @@ const Swap = () => {
               </span>
               <span className="flex items-center justify-between">
                 <p className="text-grey-1">Gas Fee</p>
-                <p>{`${estimatedGas.data?.maxPriorityFeePerGas} BNB`}</p>
+                <p>{`${formatEther(fee)} BNB`}</p>
               </span>
             </div>
           </div>
