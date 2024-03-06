@@ -17,6 +17,8 @@ import {
   lendingPoolAbi,
   borrow,
   borrowAbi,
+  tokenOptions,
+  AssetName,
 } from "@/constants";
 import {
   useAccount,
@@ -35,42 +37,8 @@ import {
   formatUnits,
 } from "viem";
 import { toast } from "sonner";
-import { IconType } from "@/components";
 
-const assetName = ["Token A", "Token B", "Token C"] as const;
-type AssetName = (typeof assetName)[number];
 type TabType = "supply" | "borrow";
-interface ItokenOptions {
-  label: string;
-  value: string;
-  icon: {
-    1: IconType;
-  };
-}
-
-const tokenOptions: ItokenOptions[] = [
-  {
-    label: "Token A",
-    value: tokenA,
-    icon: {
-      1: "blylogo",
-    },
-  },
-  {
-    label: "Token B",
-    value: tokenB,
-    icon: {
-      1: "clylogo",
-    },
-  },
-  {
-    label: "Token C",
-    value: tokenC,
-    icon: {
-      1: "dotlogo",
-    },
-  },
-];
 
 type Asset = {
   Name: AssetName | null;

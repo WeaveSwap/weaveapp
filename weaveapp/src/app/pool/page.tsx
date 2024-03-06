@@ -1,9 +1,29 @@
 "use client";
 import { DataTable, Header } from "@/components";
-import { Button, Input, Modal } from "@/primitives";
+import {
+  swap,
+  swapAbi,
+  pool,
+  poolAbi,
+  AssetName,
+  tokenOptions,
+  poolTracker,
+  poolTrackerAbi,
+} from "@/constants";
+import { Button, Input, Modal, Select } from "@/primitives";
 import { ColumnDef } from "@tanstack/react-table";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
+import { erc20Abi, formatEther, parseEther, parseUnits } from "viem";
+import {
+  useAccount,
+  useEstimateFeesPerGas,
+  useReadContract,
+  useSimulateContract,
+  useWaitForTransactionReceipt,
+  useWriteContract,
+} from "wagmi";
 
 type Pool = {
   id: string;
@@ -191,7 +211,203 @@ const columns: ColumnDef<Pool>[] = [
     accessorKey: "Action",
     header: "Action",
     cell: ({ row }) => {
-      const [inputAmount, setInputAmount] = useState<number | string>(0);
+      const [tokenOne, setTokenOne] = useState<{
+        name: string;
+        address: string;
+        value?: string;
+      }>({
+        name: "",
+        address: "",
+        value: "0",
+      });
+
+      const [tokenTwo, setTokenTwo] = useState<{
+        name: string;
+        address: string;
+        value?: string;
+      }>({
+        name: "",
+        address: "",
+        value: "0",
+      });
+
+      const { address } = useAccount();
+
+      const { data: tokenOneBalance, refetch: refetchTokenIn } =
+        useReadContract({
+          address: tokenOne.address as `0x${string}`,
+          abi: erc20Abi,
+          functionName: "balanceOf",
+          args: [address as `0x${string}`],
+        });
+
+      const { data: tokenTwoBalance, refetch: refetchTokenOut } =
+        useReadContract({
+          address: tokenTwo.address as `0x${string}`,
+          abi: erc20Abi,
+          functionName: "balanceOf",
+          args: [address as `0x${string}`],
+        });
+
+      const { data: tokenOneValue, refetch: refetchTokenOneValue } =
+        useReadContract({
+          abi: poolTrackerAbi,
+          address: poolTracker as `0x${string}`,
+          functionName: "usdValue",
+          args: [tokenOne.address as `0x${string}`, tokenOne.value],
+        });
+
+      const { data: tokenTwoValue, refetch: refetchTokenTwoValue } =
+        useReadContract({
+          abi: poolTrackerAbi,
+          address: poolTracker as `0x${string}`,
+          functionName: "usdValue",
+          args: [tokenTwo.address, tokenTwo.value],
+        });
+
+      const { data: hash, isPending, writeContractAsync } = useWriteContract();
+
+      const {
+        data: firstTokenApproveHash,
+        isPending: isFirstTokenPending,
+        writeContractAsync: writeFirstTokenApprove,
+      } = useWriteContract();
+
+      const {
+        data: secondTokenApproveHash,
+        isPending: isSecondTokenPending,
+        writeContractAsync: writeSecondTokenApprove,
+      } = useWriteContract();
+
+      const { isLoading: isCreating, isSuccess: isCreated } =
+        useWaitForTransactionReceipt({
+          hash,
+        });
+
+      const {
+        isLoading: isFirstTokenApproving,
+        isSuccess: isFirstTokenSuccess,
+      } = useWaitForTransactionReceipt({
+        hash: firstTokenApproveHash,
+      });
+
+      const {
+        isLoading: isSecondTokenApproving,
+        isSuccess: isSecondTokenSuccess,
+      } = useWaitForTransactionReceipt({
+        hash: secondTokenApproveHash,
+      });
+
+      // const handleCreatePool = async () => {
+      //   try {
+      //   } catch (error) {}
+      // };
+      const handleFirstApprove = async () => {
+        try {
+          await writeFirstTokenApprove({
+            address: tokenOne.address as `0x${string}`,
+            abi: erc20Abi,
+            functionName: "approve",
+            args: [pool as `0x${string}`, parseUnits("100", 10)],
+          });
+          toast.success("First asset approved succesfully");
+        } catch (error) {
+          console.error(error);
+          toast.error("An error occured");
+        }
+      };
+
+      const handleSecondApprove = async () => {
+        try {
+          await writeSecondTokenApprove({
+            address: tokenTwo.address as `0x${string}`,
+            abi: erc20Abi,
+            functionName: "approve",
+            args: [pool as `0x${string}`, parseUnits("100", 10)],
+          });
+          toast.success("Second asset approved succesfully");
+        } catch (error) {
+          console.error(error);
+          toast.error("An error occured");
+        }
+      };
+
+      const handleCreatePool = async () => {
+        try {
+          await writeContractAsync({
+            abi: poolAbi,
+            address: pool,
+            functionName: "createPool",
+            account: address,
+            args: [
+              tokenOne.address,
+              tokenTwo.address,
+              parseEther(tokenOne.value!),
+              parseEther(tokenTwo.value!),
+            ],
+            // value: parseEther(fee.toString()),
+          });
+          // if (isConfirmed) {
+          // }
+        } catch (error) {
+          console.error(error)
+          toast.error("An error occured");
+        }
+      };
+
+      const handleRemoveLiquidity = async () => {
+        try {
+          // await writeContractAsync({
+          //   abi: swapAbi,
+          //   address: swap,
+          //   functionName: "swapAsset",
+          //   account: address,
+          //   args: [tokenIn.address, tokenOut.address, inputAmount],
+          //   value: parseEther(fee.toString()),
+          // });
+          // if (isConfirmed) {
+          // }
+        } catch (error) {
+          console.error(error)
+          toast.error("An error occured");
+        }
+      };
+
+      // const handleSellAssetOne = async () => {
+      //   try {
+      //     await writeContractAsync({
+      //       abi: swapAbi,
+      //       address: swap,
+      //       functionName: "swapAsset",
+      //       account: address,
+      //       args: [tokenIn.address, tokenOut.address, inputAmount],
+      //       value: parseEther(fee.toString()),
+      //     });
+      //     // if (isConfirmed) {
+      //     // }
+      //   } catch (error) {
+      //     toast.error("An error occured");
+      //   }
+      // };
+
+      console.log("tokenTwoValue", tokenTwoValue);
+      useEffect(() => {
+        if (isCreated) {
+          toast.success("Pool created succesfully");
+        }
+      }, [isCreated]);
+
+      useEffect(() => {
+        if (isFirstTokenSuccess) {
+          handleSecondApprove();
+        }
+      }, [isFirstTokenSuccess]);
+
+      useEffect(() => {
+        if (isSecondTokenSuccess) {
+          handleCreatePool();
+        }
+      }, [isSecondTokenSuccess]);
 
       return (
         <Modal>
@@ -209,12 +425,30 @@ const columns: ColumnDef<Pool>[] = [
                     <p className="text-sm font-semibold text-grey-1">
                       First asset
                     </p>
+                    <Select
+                      inputId="tokenOne"
+                      option={tokenOptions.filter(
+                        (tokenOption) => tokenOption.value !== tokenTwo.address,
+                      )}
+                      onChange={(option) => {
+                        console.log(option?.value);
+                        setTokenOne({
+                          name: option?.label!,
+                          address: option?.value!,
+                          value: "0",
+                        });
+                      }}
+                    />
                   </span>
                   <span className="flex items-center gap-1">
                     <p className="text-sm font-semibold text-grey-1">
                       Wallet Bal
                     </p>
-                    {/* <p>{tokenInBalance?.toString()}</p> */}
+                    <p>
+                      {Number(
+                        formatEther(tokenOneBalance ?? BigInt(0)),
+                      ).toFixed(2)}
+                    </p>
                     <Button variant="primary" className="h-3.5 w-5">
                       Max
                     </Button>
@@ -224,12 +458,22 @@ const columns: ColumnDef<Pool>[] = [
                 <div className="flex items-center justify-between">
                   <span className="flex items-center gap-1">
                     <Input
-                      id="valueIn"
+                      id="tokenOneValue"
                       type="number"
-                      onChange={(e) => setInputAmount(e.target.value)}
+                      value={tokenOne.value}
+                      onChange={(e) =>
+                        setTokenOne((prev) => {
+                          return {
+                            ...prev,
+                            value: e.target.value,
+                          };
+                        })
+                      }
                     />
                     <p className="text-sm font-semibold text-grey-1">
-                      ($4602.43)
+                      (
+                      {`$${formatEther((tokenOneValue as bigint) ?? BigInt(0))}`}
+                      )
                     </p>
                   </span>
                   <span className="flex items-center gap-1">
@@ -250,12 +494,30 @@ const columns: ColumnDef<Pool>[] = [
                     <p className="text-sm font-semibold text-grey-1">
                       Second asset
                     </p>
+                    <Select
+                      inputId="tokenOne"
+                      option={tokenOptions.filter(
+                        (tokenOption) => tokenOption.value !== tokenOne.address,
+                      )}
+                      onChange={(option) => {
+                        console.log(option?.value);
+                        setTokenTwo({
+                          name: option?.label!,
+                          address: option?.value!,
+                          value: "0",
+                        });
+                      }}
+                    />
                   </span>
                   <span className="flex items-center gap-1">
                     <p className="text-sm font-semibold text-grey-1">
                       Wallet Bal
                     </p>
-                    {/* <p>{tokenInBalance?.toString()}</p> */}
+                    <p>
+                      {Number(
+                        formatEther(tokenTwoBalance ?? BigInt(0)),
+                      ).toFixed(2)}
+                    </p>
                     <Button variant="primary" className="h-3.5 w-5">
                       Max
                     </Button>
@@ -265,12 +527,22 @@ const columns: ColumnDef<Pool>[] = [
                 <div className="flex items-center justify-between">
                   <span className="flex items-center gap-1">
                     <Input
-                      id="valueIn"
+                      id="tokenTwoValue"
                       type="number"
-                      onChange={(e) => setInputAmount(e.target.value)}
+                      value={tokenTwo.value}
+                      onChange={(e) =>
+                        setTokenTwo((prev) => {
+                          return {
+                            ...prev,
+                            value: e.target.value,
+                          };
+                        })
+                      }
                     />
                     <p className="text-sm font-semibold text-grey-1">
-                      ($4602.43)
+                      (
+                      {`$${formatEther((tokenTwoValue as bigint) ?? BigInt(0))}`}
+                      )
                     </p>
                   </span>
                   <span className="flex items-center gap-1">
@@ -306,10 +578,29 @@ const columns: ColumnDef<Pool>[] = [
               <Button
                 className="w-full font-bold"
                 variant="primary"
-                // disabled={isLoading || isPending || isConfirming}
-                // onClick={handleSwap}
+                disabled={
+                  isCreating ||
+                  isPending ||
+                  isFirstTokenPending ||
+                  isSecondTokenPending ||
+                  isFirstTokenApproving ||
+                  isSecondTokenApproving
+                }
+                onClick={handleFirstApprove}
               >
-                Add Supply
+                {isSecondTokenApproving
+                  ? "Aproving Second Asset"
+                  : isFirstTokenApproving
+                    ? "Aproving First Asset"
+                    : isPending
+                      ? "Conform Pool Creation..."
+                      : isSecondTokenPending
+                        ? "Confirm Second Asset Approval..."
+                        : isFirstTokenPending
+                          ? "Confirm First Asset Approval..."
+                          : isCreating
+                            ? "Creating Pool.."
+                            : "Create Pool"}
               </Button>
             </Modal.Content>
           </Modal.Portal>

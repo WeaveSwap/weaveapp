@@ -3,12 +3,7 @@ const poolAbi = [
     inputs: [
       {
         internalType: "address",
-        name: "_assetOneAddress",
-        type: "address",
-      },
-      {
-        internalType: "address",
-        name: "_assetTwoAddress",
+        name: "_yieldCalculator",
         type: "address",
       },
     ],
@@ -17,150 +12,53 @@ const poolAbi = [
   },
   {
     inputs: [],
-    name: "addressNotCorrect",
+    name: "PoolTracker_cantSwapSameToken",
     type: "error",
   },
   {
     inputs: [],
-    name: "amountTooBig",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "assetNotCorrect",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "initialLiquidityAlreadyProvided",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "needToCallExistingFunction",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "notEnoughGas",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "notEnoughTimePassed",
-    type: "error",
-  },
-  {
-    inputs: [],
-    name: "notEnoughTokens",
+    name: "PoolTracker_pairAlreadyExists",
     type: "error",
   },
   {
     anonymous: false,
     inputs: [
       {
-        indexed: true,
-        internalType: "address",
-        name: "_address",
+        indexed: false,
+        internalType: "contract LiquidityPool",
+        name: "pool",
         type: "address",
       },
       {
         indexed: false,
-        internalType: "uint256",
-        name: "_assetOneAmount",
-        type: "uint256",
-      },
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "_assetTwoAmount",
-        type: "uint256",
-      },
-    ],
-    name: "liquidityAdded",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
         internalType: "address",
-        name: "_address",
+        name: "assetOne",
         type: "address",
       },
       {
         indexed: false,
-        internalType: "uint256",
-        name: "_assetOneAmount",
-        type: "uint256",
-      },
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "_assetTwoAmount",
-        type: "uint256",
+        internalType: "address",
+        name: "assetTwo",
+        type: "address",
       },
     ],
-    name: "liquidityRemoved",
+    name: "poolCreated",
     type: "event",
   },
   {
-    anonymous: false,
     inputs: [
       {
-        indexed: false,
         internalType: "address",
-        name: "_asset",
+        name: "tokenAddress",
         type: "address",
       },
       {
-        indexed: false,
-        internalType: "uint256",
-        name: "price",
-        type: "uint256",
-      },
-    ],
-    name: "priceChanged",
-    type: "event",
-  },
-  {
-    anonymous: false,
-    inputs: [
-      {
-        indexed: true,
         internalType: "address",
-        name: "_address",
+        name: "priceFeed",
         type: "address",
       },
-      {
-        indexed: false,
-        internalType: "uint256",
-        name: "_amount",
-        type: "uint256",
-      },
     ],
-    name: "yieldFarmed",
-    type: "event",
-  },
-  {
-    stateMutability: "payable",
-    type: "fallback",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "_assetOneAmount",
-        type: "uint256",
-      },
-      {
-        internalType: "uint256",
-        name: "_assetTwoAmount",
-        type: "uint256",
-      },
-    ],
-    name: "addInitialLiquidity",
+    name: "addRoutingAddress",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
@@ -169,33 +67,38 @@ const poolAbi = [
     inputs: [
       {
         internalType: "address",
-        name: "_asset",
+        name: "_assetOneAddress",
         type: "address",
       },
       {
         internalType: "address",
-        name: "_secondAsset",
+        name: "_assetTwoAddress",
         type: "address",
       },
       {
         internalType: "uint256",
-        name: "_amount",
+        name: "amountOne",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "amountTwo",
         type: "uint256",
       },
     ],
-    name: "addLiquidity",
+    name: "createPool",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
   },
   {
     inputs: [],
-    name: "addressBalance",
+    name: "destinationChain",
     outputs: [
       {
-        internalType: "uint256",
+        internalType: "uint16",
         name: "",
-        type: "uint256",
+        type: "uint16",
       },
     ],
     stateMutability: "view",
@@ -205,260 +108,16 @@ const poolAbi = [
     inputs: [
       {
         internalType: "address",
-        name: "_asset",
+        name: "token1",
         type: "address",
       },
-      {
-        internalType: "uint256",
-        name: "_amount",
-        type: "uint256",
-      },
-    ],
-    name: "amountOfOppositeTokenNeeded",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "assetOneAddress",
-    outputs: [
       {
         internalType: "address",
-        name: "",
+        name: "token2",
         type: "address",
       },
     ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "assetOnePrice",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "assetTwoAddress",
-    outputs: [
-      {
-        internalType: "address",
-        name: "",
-        type: "address",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "assetTwoPrice",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "newSwapFee",
-        type: "uint256",
-      },
-    ],
-    name: "changeSwapFee",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "_address",
-        type: "address",
-      },
-    ],
-    name: "getAssetBalace",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "getAssetOne",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "getAssetTwo",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "getLiquidity",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "_address",
-        type: "address",
-      },
-    ],
-    name: "getLpTokenQuantity",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "getSwapFee",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "sellingAsset",
-        type: "address",
-      },
-      {
-        internalType: "uint256",
-        name: "_amount",
-        type: "uint256",
-      },
-    ],
-    name: "getSwapQuantity",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "getYield",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "initialLiquidity",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "address",
-        name: "",
-        type: "address",
-      },
-    ],
-    name: "initialLiquidityProvidedTime",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "isTime",
-    outputs: [
-      {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "isTimeInitialLiquidity",
+    name: "exists",
     outputs: [
       {
         internalType: "bool",
@@ -473,11 +132,11 @@ const poolAbi = [
     inputs: [
       {
         internalType: "address",
-        name: "",
+        name: "tokenAddress",
         type: "address",
       },
     ],
-    name: "lastYieldFarmedTime",
+    name: "getPoolPairsLength",
     outputs: [
       {
         internalType: "uint256",
@@ -490,7 +149,7 @@ const poolAbi = [
   },
   {
     inputs: [],
-    name: "liquidity",
+    name: "getRoutingAddressesLength",
     outputs: [
       {
         internalType: "uint256",
@@ -508,21 +167,37 @@ const poolAbi = [
         name: "",
         type: "address",
       },
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
     ],
-    name: "lpTokenQuantity",
+    name: "pairToPool",
     outputs: [
       {
-        internalType: "uint256",
+        internalType: "contract LiquidityPool",
         name: "",
-        type: "uint256",
+        type: "address",
       },
     ],
     stateMutability: "view",
     type: "function",
   },
   {
-    inputs: [],
-    name: "owner",
+    inputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    name: "poolPairs",
     outputs: [
       {
         internalType: "address",
@@ -537,102 +212,114 @@ const poolAbi = [
     inputs: [
       {
         internalType: "uint256",
-        name: "_amount",
+        name: "",
         type: "uint256",
       },
     ],
-    name: "removeLiquidity",
+    name: "routingAddresses",
+    outputs: [
+      {
+        internalType: "address",
+        name: "tokenAddress",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "priceFeed",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "tokenList",
+    outputs: [
+      {
+        internalType: "address[]",
+        name: "",
+        type: "address[]",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "address1",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "address2",
+        type: "address",
+      },
+    ],
+    name: "tokenToRoute",
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    name: "tokens",
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "withdrawEther",
     outputs: [],
     stateMutability: "nonpayable",
     type: "function",
   },
   {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "_amount",
-        type: "uint256",
-      },
-    ],
-    name: "sellAssetOne",
-    outputs: [],
-    stateMutability: "payable",
-    type: "function",
-  },
-  {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "_amount",
-        type: "uint256",
-      },
-    ],
-    name: "sellAssetTwo",
-    outputs: [],
-    stateMutability: "payable",
-    type: "function",
-  },
-  {
     inputs: [],
-    name: "swapFee",
+    name: "yieldCalculator",
     outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "yield",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "yieldAmount",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [
       {
         internalType: "address",
         name: "",
         type: "address",
       },
     ],
-    name: "yieldTaken",
-    outputs: [
-      {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
-    ],
     stateMutability: "view",
     type: "function",
   },
   {
-    stateMutability: "payable",
-    type: "receive",
+    inputs: [],
+    name: "zkBridge",
+    outputs: [
+      {
+        internalType: "contract IZKBridge",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
   },
 ];
 
@@ -2042,4 +1729,879 @@ const borrowAbi = [
   },
 ];
 
-export { poolAbi, swapAbi, lendAbi, lendingPoolAbi, borrowAbi };
+const poolTrackerAbi = [
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_poolTracker",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "_ethPriceFeed",
+        type: "address",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "constructor",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "tokenAddress",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "tokenAddress2",
+        type: "address",
+      },
+    ],
+    name: "dailyRate",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "tokenAddress",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "tokenAddress2",
+        type: "address",
+      },
+    ],
+    name: "dailyRoi",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "ethPriceFeed",
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "tokenAddress",
+        type: "address",
+      },
+    ],
+    name: "marketCap",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "tokenAddress",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "tokenAddress2",
+        type: "address",
+      },
+    ],
+    name: "pairMarketCap",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "tokenAddress",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "tokenAddress2",
+        type: "address",
+      },
+    ],
+    name: "pairTvl",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "poolTracker",
+    outputs: [
+      {
+        internalType: "contract PoolTracker",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "tokenAddress",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "tokenAddress2",
+        type: "address",
+      },
+    ],
+    name: "totalRoi",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "tokenAddress",
+        type: "address",
+      },
+    ],
+    name: "tvl",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "tokenAddress",
+        type: "address",
+      },
+    ],
+    name: "tvlRatio",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "tokenAddress",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "tokenAmount",
+        type: "uint256",
+      },
+    ],
+    name: "usdValue",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+];
+
+const liquidityPoolAbi = [
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_assetOneAddress",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "_assetTwoAddress",
+        type: "address",
+      },
+    ],
+    stateMutability: "nonpayable",
+    type: "constructor",
+  },
+  {
+    inputs: [],
+    name: "addressNotCorrect",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "assetNotCorrect",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "initialLiquidityAlreadyProvided",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "needToCallExistingFunction",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "notEnoughGas",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "notEnoughTimePassed",
+    type: "error",
+  },
+  {
+    inputs: [],
+    name: "notEnoughTokens",
+    type: "error",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "_address",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "_assetOneAmount",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "_assetTwoAmount",
+        type: "uint256",
+      },
+    ],
+    name: "liquidityAdded",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "_address",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "_assetOneAmount",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "_assetTwoAmount",
+        type: "uint256",
+      },
+    ],
+    name: "liquidityRemoved",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "address",
+        name: "_asset",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "price",
+        type: "uint256",
+      },
+    ],
+    name: "priceChanged",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "_address",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "_amount",
+        type: "uint256",
+      },
+    ],
+    name: "yieldFarmed",
+    type: "event",
+  },
+  {
+    stateMutability: "payable",
+    type: "fallback",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "_assetOneAmount",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "_assetTwoAmount",
+        type: "uint256",
+      },
+    ],
+    name: "addInitialLiquidity",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_asset",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "_secondAsset",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "_amount",
+        type: "uint256",
+      },
+    ],
+    name: "addLiquidity",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "addressBalance",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_asset",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "_amount",
+        type: "uint256",
+      },
+    ],
+    name: "amountOfOppositeTokenNeeded",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "assetOneAddress",
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "assetOnePrice",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "assetTwoAddress",
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "assetTwoPrice",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_address",
+        type: "address",
+      },
+    ],
+    name: "getAssetBalace",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "getAssetOne",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "getAssetTwo",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_address",
+        type: "address",
+      },
+    ],
+    name: "getLpTokenQuantity",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "sellingAsset",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "_amount",
+        type: "uint256",
+      },
+    ],
+    name: "getSwapQuantity",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "getYield",
+    outputs: [],
+    stateMutability: "payable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "initialLiquidity",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    name: "initialLiquidityProvidedTime",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "isTime",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "isTimeInitialLiquidity",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    name: "lastYieldFarmedTime",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "liquidity",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    name: "lpTokenQuantity",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "owner",
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "_amount",
+        type: "uint256",
+      },
+    ],
+    name: "removeLiquidity",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "_amount",
+        type: "uint256",
+      },
+    ],
+    name: "sellAssetOne",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "payable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint256",
+        name: "_amount",
+        type: "uint256",
+      },
+    ],
+    name: "sellAssetTwo",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "payable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "swapFee",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "yield",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    name: "yieldTaken",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "uint16",
+        name: "srcChainId",
+        type: "uint16",
+      },
+      {
+        internalType: "address",
+        name: "srcAddress",
+        type: "address",
+      },
+      {
+        internalType: "uint64",
+        name: "nonce",
+        type: "uint64",
+      },
+      {
+        internalType: "bytes",
+        name: "payload",
+        type: "bytes",
+      },
+    ],
+    name: "zkReceive",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    stateMutability: "payable",
+    type: "receive",
+  },
+];
+
+export {
+  poolAbi,
+  swapAbi,
+  lendAbi,
+  lendingPoolAbi,
+  borrowAbi,
+  poolTrackerAbi,
+  liquidityPoolAbi,
+};

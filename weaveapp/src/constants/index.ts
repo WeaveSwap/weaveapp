@@ -1,12 +1,55 @@
-import { poolAbi, swapAbi, lendAbi, lendingPoolAbi, borrowAbi } from "./abis";
+import { IconType } from "@/components";
+import {
+  poolAbi,
+  swapAbi,
+  lendAbi,
+  lendingPoolAbi,
+  borrowAbi,
+  poolTrackerAbi,
+} from "./abis";
 
 const lend = "0x15D7BdFc3Afc61544c6D9085dC4235f15B85a4C4";
 const borrow = "0xf95269C39EBaF3D75d3Fa67E2cCeDcB791507D28";
-const pool = "0x67A9732d92A0EbcC78d63E7bFF78689a5F8825D2";
+const pool = "0x2eF926F54f7D767cbb7369d21A342DdB033D2024";
 const tokenA = "0x1F06aB1B322AcF25D52f9210c227692B8Bfac58F";
 const tokenB = "0xFcf351591C7A9D081D5b9c37Bbec3062EE03E235";
 const tokenC = "0x18c9504c02d97D41d518f6bF91faa9A8Fe8071D1";
 const swap = "0x3dfBF4C76f99Cc64BF69BAd9ed27DF567d488956";
+const poolTracker = "0xCFa1b4381C4C62cf4B92e955dB1AEDA04bf55F81";
+
+const assetName = ["Token A", "Token B", "Token C"] as const;
+type AssetName = (typeof assetName)[number];
+interface ItokenOptions {
+  label: string;
+  value: string;
+  icon: {
+    1: IconType;
+  };
+}
+
+const tokenOptions: ItokenOptions[] = [
+  {
+    label: "Token A",
+    value: tokenA,
+    icon: {
+      1: "blylogo",
+    },
+  },
+  {
+    label: "Token B",
+    value: tokenB,
+    icon: {
+      1: "clylogo",
+    },
+  },
+  {
+    label: "Token C",
+    value: tokenC,
+    icon: {
+      1: "dotlogo",
+    },
+  },
+];
 
 export {
   lend,
@@ -21,4 +64,9 @@ export {
   lendingPoolAbi,
   borrow,
   borrowAbi,
+  tokenOptions,
+  poolTracker,
+  poolTrackerAbi,
 };
+
+export { type AssetName };
