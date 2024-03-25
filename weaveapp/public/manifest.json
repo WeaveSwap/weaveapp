@@ -1,0 +1,50 @@
+{
+    "lang": "en-us",
+    "short_name": "WeaveSwap",
+    "name": "WeaveSwap",
+    "description": "Your One-Stop Access to Dencentralised Asset Swapping.",
+    "start_url": "/",
+    "background_color": "#2f3d58",
+    "theme_color": "#232792",
+    "orientation": "any",
+    "display": "standalone",
+    "icons": [
+        {
+            "src": "assets/weaveswap.png",
+            "type": "image/png",
+            "sizes": "144x144"
+        },
+        {
+            "src": "assets/weaveswap-large.png",
+            "type": "image/png",
+            "sizes": "512x512"
+        }
+    ],
+    "categories": [
+        "Finance",
+        "Utilities"
+    ],
+    "screenshots": [
+        {
+            "src": "assets/lend.png",
+            "sizes": "529x332",
+            "type": "image/png"
+        },
+        {
+            "src": "assets/pool.png",
+            "sizes": "529x333",
+            "type": "image/png"
+        },
+        {
+            "src": "assets/swap.png",
+            "sizes": "327x408",
+            "type": "image/png"
+        },
+        {
+            "src": "assets/weaveswap-display.png",
+            "sizes": "1899x1064",
+            "type": "image/png",
+            "form_factor": "wide"
+        }
+    ]
+}

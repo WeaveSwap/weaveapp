@@ -52,9 +52,9 @@ export default function HomePage() {
             </Button>
           </div>
           <div className="flex items-center justify-between justify-self-end rounded-md border-[0.5px] border-[#878787] p-8">
-            {features.map((feature) => {
+            {features.map((feature, index) => {
               return (
-                <span className="flex flex-col items-center justify-center text-center font-hubotsans_regular font-semibold text-white">
+                <span key={index} className="flex flex-col items-center justify-center text-center font-hubotsans_regular font-semibold text-white">
                   {feature.icon}
                   <p className="text-lg">{feature.title}</p>
                   <p className="text-sm">{feature.subTitle}</p>
