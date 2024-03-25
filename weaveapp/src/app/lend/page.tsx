@@ -1,5 +1,17 @@
 "use client";
 import { DataTable, Header } from "@/components";
+import {
+  AssetName,
+  borrow,
+  borrowAbi,
+  lend,
+  lendAbi,
+  lendingPoolAbi,
+  tokenA,
+  tokenB,
+  tokenC,
+  tokenOptions,
+} from "@/constants";
 import { Button, Icon, Input, Modal, Select } from "@/primitives";
 import { createUrl } from "@/utils";
 import * as Tabs from "@radix-ui/react-tabs";
@@ -7,36 +19,16 @@ import { ColumnDef } from "@tanstack/react-table";
 import Image from "next/image";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
 import { twMerge } from "tailwind-merge";
-import {
-  lend,
-  lendAbi,
-  tokenA,
-  tokenB,
-  tokenC,
-  lendingPoolAbi,
-  borrow,
-  borrowAbi,
-  tokenOptions,
-  AssetName,
-} from "@/constants";
+import { erc20Abi, formatEther, parseEther, parseUnits } from "viem";
 import {
   useAccount,
-  useEstimateFeesPerGas,
   useReadContract,
-  useSimulateContract,
   useWaitForTransactionReceipt,
   useWatchContractEvent,
   useWriteContract,
 } from "wagmi";
-import {
-  erc20Abi,
-  parseUnits,
-  parseEther,
-  formatEther,
-  formatUnits,
-} from "viem";
-import { toast } from "sonner";
 
 type TabType = "supply" | "borrow";
 
@@ -62,15 +54,30 @@ const columns: ColumnDef<Asset>[] = [
         switch (asset) {
           case "Token A":
             return (
-              <Image width="20" height="20" src="/blylogo.svg" alt="blylogo" />
+              <Image
+                width="20"
+                height="20"
+                src="/assets/svgs/blylogo.svg"
+                alt="blylogo"
+              />
             );
           case "Token B":
             return (
-              <Image width="20" height="20" src="/clylogo.svg" alt="clylogo" />
+              <Image
+                width="20"
+                height="20"
+                src="/assets/svgs/clylogo.svg"
+                alt="clylogo"
+              />
             );
           case "Token C":
             return (
-              <Image width="20" height="20" src="/dotlogo.svg" alt="clylogo" />
+              <Image
+                width="20"
+                height="20"
+                src="/assets/svgs/dotlogo.svg"
+                alt="clylogo"
+              />
             );
           default:
             return null;
@@ -335,7 +342,7 @@ const columns: ColumnDef<Asset>[] = [
                       <Image
                         height={20}
                         width={20}
-                        src="/ethlogo.svg"
+                        src="/assets/svgs/ethlogo.svg"
                         alt="ethlogo"
                       />
                       <p className="text-2xl">Ethereum</p>
@@ -390,7 +397,7 @@ const columns: ColumnDef<Asset>[] = [
                         <Image
                           height={20}
                           width={20}
-                          src="/ethlogo.svg"
+                          src="/assets/svgs/ethlogo.svg"
                           alt="ethlogo"
                         />
                         <p className="text-2xl">Ethereum</p>

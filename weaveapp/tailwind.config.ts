@@ -89,7 +89,7 @@ const config = {
         "accordion-up": "accordion-up 0.2s ease-out",
       },
       backgroundImage: {
-        background1: "url('/Banner.jpeg')",
+        background1: "url('/assets/Banner.jpeg')",
       },
     },
   },

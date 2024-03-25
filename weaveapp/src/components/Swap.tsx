@@ -2,16 +2,14 @@
 import { swap, swapAbi, tokenA, tokenB, tokenC } from "@/constants";
 import { Button, Input, Select } from "@/primitives";
 import Image from "next/image";
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { FaClockRotateLeft } from "react-icons/fa6";
 import { IoMdArrowDropdown, IoMdSettings } from "react-icons/io";
 import { toast } from "sonner";
 import {
   erc20Abi,
-  parseUnits,
   formatEther,
-  formatUnits,
-  parseEther,
+  parseEther
 } from "viem";
 import {
   useAccount,
@@ -82,7 +80,7 @@ const Swap = () => {
     args: [tokenIn.address, tokenOut.address],
   });
 
-  const fee: bigint = useMemo(() => BigInt(swapFee as any|| 0), [swapFee]);
+  const fee: bigint = useMemo(() => BigInt((swapFee as any) || 0), [swapFee]);
 
   const { data: tokenInBalance, refetch: refetchTokenIn } = useReadContract({
     address: tokenIn.address as `0x${string}`,
@@ -196,7 +194,7 @@ const Swap = () => {
                 <Image
                   height={20}
                   width={20}
-                  src="/ethlogo.svg"
+                  src="/assets/svgs/ethlogo.svg"
                   alt="ethlogo"
                 />
                 <p>ETH</p>
@@ -256,7 +254,12 @@ const Swap = () => {
               <p className="text-sm font-semibold text-grey-1">($4602.43)</p>
             </span>
             <span className="flex items-center gap-1">
-              <Image height={20} width={20} src="/ethlogo.svg" alt="ethlogo" />
+              <Image
+                height={20}
+                width={20}
+                src="/assets/svgs/ethlogo.svg"
+                alt="ethlogo"
+              />
               <p className="text-2xl">Ethereum</p>
               <IoMdArrowDropdown />
             </span>
@@ -270,7 +273,7 @@ const Swap = () => {
                 <Image
                   height={20}
                   width={20}
-                  src="/weavelogo.svg"
+                  src="/assets/svgs/weavelogo.svg"
                   alt="weavelogo"
                 />
                 <p>WAS</p>
@@ -325,7 +328,7 @@ const Swap = () => {
               <Image
                 height={20}
                 width={20}
-                src="/weavelogo.svg"
+                src="/assets/svgs/weavelogo.svg"
                 alt="weavelogo"
               />
               <p className="text-2xl">Weaves</p>

@@ -1,14 +1,13 @@
 "use client";
-import { Button, Icon } from "@/primitives";
-import { FaArrowCircleRight } from "react-icons/fa";
-import { IoShieldCheckmarkOutline } from "react-icons/io5";
-import { BsLightningCharge } from "react-icons/bs";
-import { HiOutlineSignal } from "react-icons/hi2";
-import { VscTools } from "react-icons/vsc";
-import { usePathname } from "next/navigation";
 import { Header } from "@/components";
+import { Button, Icon } from "@/primitives";
 import Image from "next/image";
-import { FaXTwitter, FaLinkedin, FaDiscord, FaTelegram } from "react-icons/fa6";
+import { BsLightningCharge } from "react-icons/bs";
+import { FaArrowCircleRight } from "react-icons/fa";
+import { FaDiscord, FaLinkedin, FaTelegram, FaXTwitter } from "react-icons/fa6";
+import { HiOutlineSignal } from "react-icons/hi2";
+import { IoShieldCheckmarkOutline } from "react-icons/io5";
+import { VscTools } from "react-icons/vsc";
 
 const features = [
   {
@@ -37,7 +36,7 @@ export default function HomePage() {
   return (
     <main className="flex flex-col items-center font-khand text-white">
       <div className="w-full">
-        <div className="bg-background1 flex h-screen flex-col justify-between bg-cover bg-center  bg-no-repeat p-10">
+        <div className="flex h-screen flex-col justify-between bg-background1 bg-cover bg-center  bg-no-repeat p-10">
           <Header />
           <div className="flex  w-2/3 flex-col items-center justify-center gap-5 self-center text-center">
             <h1 className="font-kavoon text-3xl font-medium text-[#FCFFFE]">
@@ -55,7 +54,7 @@ export default function HomePage() {
           <div className="flex items-center justify-between justify-self-end rounded-md border-[0.5px] border-[#878787] p-8">
             {features.map((feature) => {
               return (
-                <span className="font-hubotsans_regular flex flex-col items-center justify-center text-center font-semibold text-white">
+                <span className="flex flex-col items-center justify-center text-center font-hubotsans_regular font-semibold text-white">
                   {feature.icon}
                   <p className="text-lg">{feature.title}</p>
                   <p className="text-sm">{feature.subTitle}</p>
@@ -64,7 +63,7 @@ export default function HomePage() {
             })}
           </div>
         </div>
-        <div className="font-hubotsans_regular flex flex-col items-center justify-center gap-5 bg-[#030C1A] p-10 text-center">
+        <div className="flex flex-col items-center justify-center gap-5 bg-[#030C1A] p-10 text-center font-hubotsans_regular">
           <h2 className="text-2xl font-bold text-white">
             Cross- Chain compatibility
           </h2>
@@ -75,44 +74,44 @@ export default function HomePage() {
           </p>
           <div className="flex items-center gap-5">
             <Image
-              src={"/Ethereum3D.svg"}
+              src={"/assets/svgs/Ethereum3D.svg"}
               alt="Ethereum3D"
               height={72}
               width={72}
             />
             <Image
-              src={"/Avalanche3D.svg"}
+              src={"/assets/svgs/Avalanche3D.svg"}
               alt="Avalanche3D"
               height={72}
               width={72}
             />
             <Image
-              src={"/Cosmos3D.svg"}
+              src={"/assets/svgs/Cosmos3D.svg"}
               alt="Cosmos3D"
               height={72}
               width={72}
             />
             <Image
-              src={"/Polygon3D.svg"}
+              src={"/assets/svgs/Polygon3D.svg"}
               alt="Polygon3D"
               height={72}
               width={72}
             />
             <Image
-              src={"/Solana3D.svg"}
+              src={"/assets/svgs/Solana3D.svg"}
               alt="Solana3D"
               height={72}
               width={72}
             />
             <Image
-              src={"/USDCoin3D.svg"}
+              src={"/assets/svgs/USDCoin3D.svg"}
               alt="USDCoin3D"
               height={72}
               width={72}
             />
           </div>
         </div>
-        <div className="font-hubotsans_regular flex flex-col items-center justify-center gap-5 bg-[#030C1A] p-10 text-center text-white">
+        <div className="flex flex-col items-center justify-center gap-5 bg-[#030C1A] p-10 text-center font-hubotsans_regular text-white">
           <h2 className="text-3xl font-bold">What we offer</h2>
           <div className="grid grid-cols-2 gap-4">
             <div className="flex flex-col justify-center gap-4 text-left">
@@ -124,7 +123,7 @@ export default function HomePage() {
             </div>
             <div className="flex w-full items-center justify-end">
               <Image
-                src={"/swap.png"}
+                src={"/assets/swap.png"}
                 alt="swap"
                 width="0"
                 height="0"
@@ -134,7 +133,7 @@ export default function HomePage() {
             </div>
             <div className="flex w-full items-center justify-start">
               <Image
-                src={"/pool.png"}
+                src={"/assets/pool.png"}
                 alt="swap"
                 width="0"
                 height="0"
@@ -160,7 +159,7 @@ export default function HomePage() {
             </div>
             <div className="flex w-full items-center justify-end">
               <Image
-                src={"/lend.png"}
+                src={"/assets/lend.png"}
                 alt="swap"
                 width="0"
                 height="0"
@@ -170,7 +169,7 @@ export default function HomePage() {
             </div>
           </div>
         </div>
-        <div className="font-hubotsans_regular flex h-[50vh] flex-col items-center justify-center gap-5 bg-[#030C1A] p-10 text-center text-white">
+        <div className="flex h-[50vh] flex-col items-center justify-center gap-5 bg-[#030C1A] p-10 text-center font-hubotsans_regular text-white">
           <div className="flex w-2/3 flex-col items-center justify-center gap-5 self-center text-center">
             <h1 className="text-3xl font-bold text-[#FCFFFE]">
               Get on our token list
@@ -188,7 +187,7 @@ export default function HomePage() {
             </Button>
           </div>
         </div>
-        <footer className="font-hubotsans_regular flex  items-center justify-around gap-5 bg-[#030C1A] p-10 text-center text-white">
+        <footer className="flex items-center  justify-around gap-5 bg-[#030C1A] p-10 text-center font-hubotsans_regular text-white">
           <div className="flex flex-col gap-2">
             <div className="flex items-center gap-1">
               <Icon name="weavelogo" />

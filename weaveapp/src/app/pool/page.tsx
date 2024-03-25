@@ -1,14 +1,11 @@
 "use client";
 import { DataTable, Header } from "@/components";
 import {
-  swap,
-  swapAbi,
   pool,
   poolAbi,
-  AssetName,
-  tokenOptions,
   poolTracker,
   poolTrackerAbi,
+  tokenOptions
 } from "@/constants";
 import { Button, Input, Modal, Select } from "@/primitives";
 import { ColumnDef } from "@tanstack/react-table";
@@ -18,11 +15,9 @@ import { toast } from "sonner";
 import { erc20Abi, formatEther, parseEther, parseUnits } from "viem";
 import {
   useAccount,
-  useEstimateFeesPerGas,
   useReadContract,
-  useSimulateContract,
   useWaitForTransactionReceipt,
-  useWriteContract,
+  useWriteContract
 } from "wagmi";
 
 type Pool = {
@@ -126,7 +121,7 @@ const columns: ColumnDef<Pool>[] = [
               <Image
                 width="20"
                 height="20"
-                src="/polygonlogo.svg"
+                src="/assets/svgs/polygonlogo.svg"
                 alt="polygonlogo"
               />
             );
@@ -135,25 +130,25 @@ const columns: ColumnDef<Pool>[] = [
               <Image
                 width="20"
                 height="20"
-                src="/cnbclogo.svg"
+                src="/assets/svgs/cnbclogo.svg"
                 alt="cnbclogo"
               />
             );
           case "CLY":
             return (
-              <Image width="20" height="20" src="/clylogo.svg" alt="clylogo" />
+              <Image width="20" height="20" src="/assets/svgs/clylogo.svg" alt="clylogo" />
             );
           case "BLY":
             return (
-              <Image width="20" height="20" src="/blylogo.svg" alt="blylogo" />
+              <Image width="20" height="20" src="/assets/svgs/blylogo.svg" alt="blylogo" />
             );
           case "DOT":
             return (
-              <Image width="20" height="20" src="/dotlogo.svg" alt="dotlogo" />
+              <Image width="20" height="20" src="/assets/svgs/dotlogo.svg" alt="dotlogo" />
             );
           case "ENG":
             return (
-              <Image width="20" height="20" src="/englogo.svg" alt="englogo" />
+              <Image width="20" height="20" src="/assets/svgs/englogo.svg" alt="englogo" />
             );
           default:
             return null;
@@ -167,13 +162,13 @@ const columns: ColumnDef<Pool>[] = [
               <Image
                 width="20"
                 height="20"
-                src="/weavelogo.svg"
+                src="/assets/svgs/weavelogo.svg"
                 alt="weavelogo"
               />
             );
           case "ETH":
             return (
-              <Image width="20" height="20" src="/ethlogo.svg" alt="ethlogo" />
+              <Image width="20" height="20" src="/assets/svgs/ethlogo.svg" alt="ethlogo" />
             );
           default:
             return null;
@@ -480,7 +475,7 @@ const columns: ColumnDef<Pool>[] = [
                     <Image
                       height={20}
                       width={20}
-                      src="/ethlogo.svg"
+                      src="/assets/svgs/ethlogo.svg"
                       alt="ethlogo"
                     />
                     <p className="text-2xl">Ethereum</p>
@@ -549,7 +544,7 @@ const columns: ColumnDef<Pool>[] = [
                     <Image
                       height={20}
                       width={20}
-                      src="/ethlogo.svg"
+                      src="/assets/svgs/ethlogo.svg"
                       alt="ethlogo"
                     />
                     <p className="text-2xl">Ethereum</p>

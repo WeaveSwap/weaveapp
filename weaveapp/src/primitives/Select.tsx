@@ -1,9 +1,12 @@
 "use client";
-import ReactSelect, { components } from "react-select";
-import Image from "next/image";
-import { GroupBase, SingleValue, SelectInstance } from "react-select";
-import { forwardRef } from "react";
 import { IconType } from "@/components";
+import Image from "next/image";
+import { forwardRef } from "react";
+import ReactSelect, {
+  GroupBase,
+  SelectInstance,
+  SingleValue,
+} from "react-select";
 
 type Option = {
   value: string;
@@ -67,7 +70,7 @@ const Select = forwardRef<SelectRef, SelectProps>(
               {iconPresent ? (
                 <div className="flex gap-1">
                   <Image
-                    src={`/${option.icon?.[1]}.svg`}
+                    src={`/assets/svgs/${option.icon?.[1]}.svg`}
                     alt=""
                     height="24"
                     width="24"
