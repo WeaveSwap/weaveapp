@@ -35,7 +35,7 @@ const features = [
 export default function HomePage() {
   return (
     <main className="flex flex-col items-center font-khand text-white">
-      <div className="flex h-screen w-full flex-row bg-background1 bg-cover  bg-center bg-no-repeat">
+      <div className="flex h-screen w-full grid bg-background1 bg-cover  bg-center bg-no-repeat">
         <div className="flex h-screen flex-col justify-between bg-opacity p-10">
           <Header />
           <div className="flex  w-2/3 flex-col items-center justify-center gap-5 self-center text-center">
