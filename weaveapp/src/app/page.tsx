@@ -35,8 +35,8 @@ const features = [
 export default function HomePage() {
   return (
     <main className="flex flex-col items-center font-khand text-white">
-      <div className="flex grid h-screen w-full bg-background1 bg-cover  bg-center bg-no-repeat">
-        <div className="bg-opacity flex h-screen flex-col justify-between p-10">
+      <div className="grid w-full bg-background1 bg-cover  bg-center bg-no-repeat">
+        <div className="flex h-screen flex-col justify-between bg-opacity p-10">
           <Header />
           <div className="flex  w-2/3 flex-col items-center justify-center gap-5 self-center text-center">
             <h1 className="font-kavoon text-3xl font-medium text-[#FCFFFE]">
@@ -66,186 +66,187 @@ export default function HomePage() {
             })}
           </div>
         </div>
-        <div className="flex flex-col items-center justify-center gap-5 bg-[#030C1A] p-10 text-center font-hubotsans_regular">
-          <h2 className="text-2xl font-bold text-white">
-            Cross- Chain compatibility
-          </h2>
-          <p className="w-2/3 text-[#8E8E8E]">
-            Unlock the potential of diverse blockchain networks waveswap enables
-            you to effortlessly conduct transactions across different chains
-            expanding your possibility
-          </p>
-          <div className="flex items-center gap-5">
-            <div>
-              <Image
-                src={"/assets/svgs/Ethereum3D.svg"}
-                alt="Ethereum3D"
-                height={72}
-                width={72}
-              />
-            </div>
-            <div>
-              <Image
-                src={"/assets/svgs/Avalanche3D.svg"}
-                alt="Avalanche3D"
-                height={72}
-                width={72}
-              />
-            </div>
-            <div>
-              <Image
-                src={"/assets/svgs/Cosmos3D.svg"}
-                alt="Cosmos3D"
-                height={72}
-                width={72}
-              />
-            </div>
-            <div>
-              <Image
-                src={"/assets/svgs/Polygon3D.svg"}
-                alt="Polygon3D"
-                height={72}
-                width={72}
-              />
-            </div>
-            <div>
-              <Image
-                src={"/assets/svgs/Solana3D.svg"}
-                alt="Solana3D"
-                height={72}
-                width={72}
-              />
-            </div>
-            <div>
-              <Image
-                src={"/assets/svgs/USDCoin3D.svg"}
-                alt="USDCoin3D"
-                height={72}
-                width={72}
-              />
-            </div>
-          </div>
-        </div>
-        <div className="flex flex-col items-center justify-center gap-5 bg-[#030C1A] p-10 text-center font-hubotsans_regular text-white">
-          <h2 className="text-3xl font-bold">What we offer</h2>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="flex flex-col justify-center gap-4 text-left">
-              <h2 className="text-xl font-bold">Autonomous trading platform</h2>
-              <p className="text-lg font-medium text-[#8E8E8E]">
-                Eliminate the need for traditional intermediaries and trade any
-                crypto asset with ease
-              </p>
-            </div>
-            <div className="flex w-full items-center justify-end">
-              <Image
-                src={"/assets/swap.png"}
-                alt="swap"
-                width="0"
-                height="0"
-                sizes="100vw"
-                style={{ width: "50%", height: "auto" }}
-              />
-            </div>
-            <div className="flex w-full items-center justify-start">
-              <Image
-                src={"/assets/pool.png"}
-                alt="swap"
-                width="0"
-                height="0"
-                sizes="100vw"
-                style={{ width: "50%", height: "auto" }}
-              />
-            </div>
-            <div className="flex flex-col justify-center gap-4 text-left">
-              <h2 className="text-xl font-bold">Liquidity provider</h2>
-              <p className="text-lg font-medium text-[#8E8E8E]">
-                Earn passive income by putting your funds to work by providing
-                to a launchpad liquidity.
-              </p>
-            </div>
-            <div className="flex flex-col justify-center gap-4 text-left">
-              <h2 className="text-xl font-bold">
-                Decentralized lending Protocol
-              </h2>
-              <p className="text-lg font-medium text-[#8E8E8E]">
-                Without the need of intermediaries such as banks or financial
-                institutions, lend and borrow crypto assets.
-              </p>
-            </div>
-            <div className="flex w-full items-center justify-end">
-              <Image
-                src={"/assets/lend.png"}
-                alt="swap"
-                width="0"
-                height="0"
-                sizes="100vw"
-                style={{ width: "50%", height: "auto" }}
-              />
-            </div>
-          </div>
-        </div>
-        <div className="flex h-fit flex-col items-center justify-center gap-5 bg-[#030C1A] p-10 text-center font-hubotsans_regular text-white">
-          <div className="flex w-2/3 flex-col items-center justify-center gap-5 self-center text-center">
-            <h1 className="text-3xl font-bold text-[#FCFFFE]">
-              Get on our token list
-            </h1>
-            <p className="font-hubotsans_regular text-xl font-medium text-[#8E8E8E]">
-              Join us in our mission to revolutionize decentralized finance
-              while building trust and credibility.Projects that wish to have
-              their token show in the default swap list will need to submit
-              their information via our partner portal. Otherwise users can
-              search for any supported token via the contract address.{" "}
-            </p>
-            <Button variant="secondary" className="flex text-black">
-              <span>Apply now</span>
-              <FaArrowCircleRight />
-            </Button>
-          </div>
-        </div>
-        <footer className="flex items-center  justify-around gap-5 bg-[#030C1A] p-10 text-center font-hubotsans_regular text-white">
-          <div className="flex flex-col gap-2">
-            <div className="flex items-center gap-1">
-              <Icon name="weavelogo" />
-              <h1 className="font-kavoon text-2xl">Weaveswap</h1>
-            </div>
-            <p className="text-sm text-[#8E8E8E]">
-              Make trading more easier with weaveswap
-            </p>
-            <span className="flex items-center gap-2">
-              <FaXTwitter size={20} />
-              <FaDiscord size={20} />
-              <FaTelegram size={20} />
-              <FaLinkedin size={20} />
-            </span>
-          </div>
-          <div className="flex items-center gap-4">
-            <div className="flex flex-col gap-2 text-left">
-              <h3 className="font-bold">Company</h3>
-              <ul className="flex flex-col gap-1 text-sm">
-                <li>Home</li>
-                <li>About us</li>
-                <li>Community</li>
-              </ul>
-            </div>
-            <div className="flex flex-col gap-2 text-left">
-              <h3 className="font-bold">Product</h3>
-              <ul className="flex flex-col gap-1 text-sm">
-                <li>Swap</li>
-                <li>Lend</li>
-                <li>Pool</li>
-              </ul>
-            </div>
-            <div className="flex flex-col gap-2 text-left">
-              <h3 className="font-bold">Resources</h3>
-              <ul className="flex flex-col gap-1 text-sm">
-                <li>Ecosystem</li>
-                <li>For developers</li>
-                <li>Tokenisation</li>
-              </ul>
-            </div>
-          </div>
-        </footer>
       </div>
+
+      <div className="flex flex-col w-full items-center justify-center gap-5 bg-[#030C1A] p-10 text-center font-hubotsans_regular">
+        <h2 className="text-2xl font-bold text-white">
+          Cross- Chain compatibility
+        </h2>
+        <p className="w-2/3 text-[#8E8E8E]">
+          Unlock the potential of diverse blockchain networks waveswap enables
+          you to effortlessly conduct transactions across different chains
+          expanding your possibility
+        </p>
+        <div className="flex items-center gap-5">
+          <div>
+            <Image
+              src={"/assets/svgs/Ethereum3D.svg"}
+              alt="Ethereum3D"
+              height={72}
+              width={72}
+            />
+          </div>
+          <div>
+            <Image
+              src={"/assets/svgs/Avalanche3D.svg"}
+              alt="Avalanche3D"
+              height={72}
+              width={72}
+            />
+          </div>
+          <div>
+            <Image
+              src={"/assets/svgs/Cosmos3D.svg"}
+              alt="Cosmos3D"
+              height={72}
+              width={72}
+            />
+          </div>
+          <div>
+            <Image
+              src={"/assets/svgs/Polygon3D.svg"}
+              alt="Polygon3D"
+              height={72}
+              width={72}
+            />
+          </div>
+          <div>
+            <Image
+              src={"/assets/svgs/Solana3D.svg"}
+              alt="Solana3D"
+              height={72}
+              width={72}
+            />
+          </div>
+          <div>
+            <Image
+              src={"/assets/svgs/USDCoin3D.svg"}
+              alt="USDCoin3D"
+              height={72}
+              width={72}
+            />
+          </div>
+        </div>
+      </div>
+      <div className="flex flex-col w-full items-center justify-center gap-5 bg-[#030C1A] p-10 text-center font-hubotsans_regular text-white">
+        <h2 className="text-3xl font-bold">What we offer</h2>
+        <div className="grid grid-cols-2 gap-4">
+          <div className="flex flex-col justify-center gap-4 text-left">
+            <h2 className="text-xl font-bold">Autonomous trading platform</h2>
+            <p className="text-lg font-medium text-[#8E8E8E]">
+              Eliminate the need for traditional intermediaries and trade any
+              crypto asset with ease
+            </p>
+          </div>
+          <div className="flex w-full items-center justify-end">
+            <Image
+              src={"/assets/swap.png"}
+              alt="swap"
+              width="0"
+              height="0"
+              sizes="100vw"
+              style={{ width: "50%", height: "auto" }}
+            />
+          </div>
+          <div className="flex w-full items-center justify-start">
+            <Image
+              src={"/assets/pool.png"}
+              alt="swap"
+              width="0"
+              height="0"
+              sizes="100vw"
+              style={{ width: "50%", height: "auto" }}
+            />
+          </div>
+          <div className="flex flex-col justify-center gap-4 text-left">
+            <h2 className="text-xl font-bold">Liquidity provider</h2>
+            <p className="text-lg font-medium text-[#8E8E8E]">
+              Earn passive income by putting your funds to work by providing to
+              a launchpad liquidity.
+            </p>
+          </div>
+          <div className="flex flex-col justify-center gap-4 text-left">
+            <h2 className="text-xl font-bold">
+              Decentralized lending Protocol
+            </h2>
+            <p className="text-lg font-medium text-[#8E8E8E]">
+              Without the need of intermediaries such as banks or financial
+              institutions, lend and borrow crypto assets.
+            </p>
+          </div>
+          <div className="flex w-full items-center justify-end">
+            <Image
+              src={"/assets/lend.png"}
+              alt="swap"
+              width="0"
+              height="0"
+              sizes="100vw"
+              style={{ width: "50%", height: "auto" }}
+            />
+          </div>
+        </div>
+      </div>
+      <div className="flex h-fit flex-col items-center justify-center gap-5 bg-[#030C1A] p-10 text-center font-hubotsans_regular text-white">
+        <div className="flex w-2/3 flex-col items-center justify-center gap-5 self-center text-center">
+          <h1 className="text-3xl font-bold text-[#FCFFFE]">
+            Get on our token list
+          </h1>
+          <p className="font-hubotsans_regular text-xl font-medium text-[#8E8E8E]">
+            Join us in our mission to revolutionize decentralized finance while
+            building trust and credibility.Projects that wish to have their
+            token show in the default swap list will need to submit their
+            information via our partner portal. Otherwise users can search for
+            any supported token via the contract address.{" "}
+          </p>
+          <Button variant="secondary" className="flex text-black">
+            <span>Apply now</span>
+            <FaArrowCircleRight />
+          </Button>
+        </div>
+      </div>
+      <footer className="flex w-full items-center  justify-around gap-5 bg-[#030C1A] p-10 text-center font-hubotsans_regular text-white">
+        <div className="flex flex-col gap-2">
+          <div className="flex items-center gap-1">
+            <Icon name="weavelogo" />
+            <h1 className="font-kavoon text-2xl">Weaveswap</h1>
+          </div>
+          <p className="text-sm text-[#8E8E8E]">
+            Make trading more easier with weaveswap
+          </p>
+          <span className="flex items-center gap-2">
+            <FaXTwitter size={20} />
+            <FaDiscord size={20} />
+            <FaTelegram size={20} />
+            <FaLinkedin size={20} />
+          </span>
+        </div>
+        <div className="flex items-center gap-4">
+          <div className="flex flex-col gap-2 text-left">
+            <h3 className="font-bold">Company</h3>
+            <ul className="flex flex-col gap-1 text-sm">
+              <li>Home</li>
+              <li>About us</li>
+              <li>Community</li>
+            </ul>
+          </div>
+          <div className="flex flex-col gap-2 text-left">
+            <h3 className="font-bold">Product</h3>
+            <ul className="flex flex-col gap-1 text-sm">
+              <li>Swap</li>
+              <li>Lend</li>
+              <li>Pool</li>
+            </ul>
+          </div>
+          <div className="flex flex-col gap-2 text-left">
+            <h3 className="font-bold">Resources</h3>
+            <ul className="flex flex-col gap-1 text-sm">
+              <li>Ecosystem</li>
+              <li>For developers</li>
+              <li>Tokenisation</li>
+            </ul>
+          </div>
+        </div>
+      </footer>
     </main>
   );
 }
