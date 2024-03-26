@@ -5,7 +5,7 @@ import {
   poolAbi,
   poolTracker,
   poolTrackerAbi,
-  tokenOptions
+  tokenOptions,
 } from "@/constants";
 import { Button, Input, Modal, Select } from "@/primitives";
 import { ColumnDef } from "@tanstack/react-table";
@@ -17,7 +17,7 @@ import {
   useAccount,
   useReadContract,
   useWaitForTransactionReceipt,
-  useWriteContract
+  useWriteContract,
 } from "wagmi";
 
 type Pool = {
@@ -31,6 +31,8 @@ type Pool = {
   ROI: string;
   Action: string;
 };
+
+type TokenToImageProps = Record<string, { src: string; alt: string }>;
 
 const pools: Pool[] = [
   {
@@ -114,66 +116,32 @@ const columns: ColumnDef<Pool>[] = [
       const pool: string = row.getValue("Pool");
 
       const [token1, token2] = pool.split("/");
+
       const Token1Icon = ({ token1 }: { token1: string | undefined }) => {
-        switch (token1) {
-          case "PLY":
-            return (
-              <Image
-                width="20"
-                height="20"
-                src="/assets/svgs/polygonlogo.svg"
-                alt="polygonlogo"
-              />
-            );
-          case "CBC":
-            return (
-              <Image
-                width="20"
-                height="20"
-                src="/assets/svgs/cnbclogo.svg"
-                alt="cnbclogo"
-              />
-            );
-          case "CLY":
-            return (
-              <Image width="20" height="20" src="/assets/svgs/clylogo.svg" alt="clylogo" />
-            );
-          case "BLY":
-            return (
-              <Image width="20" height="20" src="/assets/svgs/blylogo.svg" alt="blylogo" />
-            );
-          case "DOT":
-            return (
-              <Image width="20" height="20" src="/assets/svgs/dotlogo.svg" alt="dotlogo" />
-            );
-          case "ENG":
-            return (
-              <Image width="20" height="20" src="/assets/svgs/englogo.svg" alt="englogo" />
-            );
-          default:
-            return null;
-        }
+        const tokenToImageProps: TokenToImageProps = {
+          PLY: { src: "/assets/svgs/polygonlogo.svg", alt: "polygonlogo" },
+          CBC: { src: "/assets/svgs/cnbclogo.svg", alt: "cnbclogo" },
+          CLY: { src: "/assets/svgs/clylogo.svg", alt: "clylogo" },
+          BLY: { src: "/assets/svgs/blylogo.svg", alt: "blylogo" },
+          DOT: { src: "/assets/svgs/dotlogo.svg", alt: "dotlogo" },
+          ENG: { src: "/assets/svgs/englogo.svg", alt: "englogo" },
+        };
+
+        const image = tokenToImageProps[token1 ?? ""];
+        if (!image) return null;
+        return <Image width="20" height="20" src={image.src} alt={image.alt} />;
       };
 
       const Token2Icon = ({ token2 }: { token2: string | undefined }) => {
-        switch (token2) {
-          case "WAS":
-            return (
-              <Image
-                width="20"
-                height="20"
-                src="/assets/svgs/weavelogo.svg"
-                alt="weavelogo"
-              />
-            );
-          case "ETH":
-            return (
-              <Image width="20" height="20" src="/assets/svgs/ethlogo.svg" alt="ethlogo" />
-            );
-          default:
-            return null;
-        }
+        const tokenToImageProps: TokenToImageProps = {
+          WAS: { src: "/assets/svgs/weavelogo.svg", alt: "weavelogo" },
+          ETH: { src: "/assets/svgs/ethlogo.svg", alt: "ethlogo" },
+        };
+        const image = tokenToImageProps[token2 ?? ""];
+        if (!image) return null;
+        return <Image width="20" height="20" src={image.src} alt={image.alt} />;
       };
+      
       return (
         <div className="flex items-center gap-1 font-medium">
           <Token1Icon token1={token1} />
@@ -345,7 +313,7 @@ const columns: ColumnDef<Pool>[] = [
           // if (isConfirmed) {
           // }
         } catch (error) {
-          console.error(error)
+          console.error(error);
           toast.error("An error occured");
         }
       };
@@ -363,7 +331,7 @@ const columns: ColumnDef<Pool>[] = [
           // if (isConfirmed) {
           // }
         } catch (error) {
-          console.error(error)
+          console.error(error);
           toast.error("An error occured");
         }
       };
