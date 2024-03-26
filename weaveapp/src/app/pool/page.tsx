@@ -410,7 +410,7 @@ const columns: ColumnDef<Pool>[] = [
             <Button variant="primary">Add Supply</Button>
           </Modal.Button>
           <Modal.Portal className="backdrop-blur-sm">
-            <Modal.Content className="data-[state=open]:animate-contentShow fixed left-1/2 top-1/2 z-30 flex max-h-[814px] w-full max-w-[30.06rem] -translate-x-1/2 -translate-y-1/2 flex-col gap-10 rounded-[10px] border border-[0.5] border-grey-1 bg-black p-10 px-8 py-10 font-khand text-white shadow focus:outline-none">
+            <Modal.Content className="data-[state=open]:animate-contentShow fixed left-1/2 top-1/2 z-30 flex max-h-[814px] w-full max-w-[30.06rem] -translate-x-1/2 -translate-y-1/2 flex-col gap-10 rounded-[10px] border border-[0.5] border-grey-1 p-10 px-8 py-10 font-khand text-white shadow focus:outline-none">
               <div className="flex items-center justify-between">
                 <h2 className="text-2xl font-semibold"> Add Supply</h2>
               </div>
@@ -607,7 +607,7 @@ const columns: ColumnDef<Pool>[] = [
 
 const Page = () => {
   return (
-    <main className="flex min-h-screen flex-col gap-3 bg-black p-10">
+    <main className="flex min-h-screen flex-col gap-3 p-10">
       <Header />
       <div className="w-2/3">
         <h1 className="font-khand text-2xl font-bold text-white">

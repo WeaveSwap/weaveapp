@@ -52,7 +52,7 @@ const WalletProvider = ({ children }: { children: React.ReactNode }) => {
         <RainbowKitProvider>
           <Toaster richColors position="top-center" closeButton />
           {/* <main
-            className={`p-5 ${path !== "/" ? "justify-between gap-10 bg-black" : " "} flex min-h-[100vh] flex-col `}
+            className={`p-5 ${path !== "/" ? "justify-between gap-10" : " "} flex min-h-[100vh] flex-col `}
           >
           </main> */}
             {children}
