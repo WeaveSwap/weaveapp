@@ -31,7 +31,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`font-sans ${inter.variable} ${khand.variable} ${kavoon.variable}`}
+        className={`font-sans ${inter.variable} ${khand.variable} ${kavoon.variable} w-fit`}
       >
         <WalletProvider>{children}</WalletProvider>
       </body>

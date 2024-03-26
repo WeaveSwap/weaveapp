@@ -35,8 +35,8 @@ const features = [
 export default function HomePage() {
   return (
     <main className="flex flex-col items-center font-khand text-white">
-      <div className="flex h-screen w-full grid bg-background1 bg-cover  bg-center bg-no-repeat">
-        <div className="flex h-screen flex-col justify-between bg-opacity p-10">
+      <div className="flex grid h-screen w-full bg-background1 bg-cover  bg-center bg-no-repeat">
+        <div className="bg-opacity flex h-screen flex-col justify-between p-10">
           <Header />
           <div className="flex  w-2/3 flex-col items-center justify-center gap-5 self-center text-center">
             <h1 className="font-kavoon text-3xl font-medium text-[#FCFFFE]">
@@ -76,42 +76,54 @@ export default function HomePage() {
             expanding your possibility
           </p>
           <div className="flex items-center gap-5">
-            <Image
-              src={"/assets/svgs/Ethereum3D.svg"}
-              alt="Ethereum3D"
-              height={72}
-              width={72}
-            />
-            <Image
-              src={"/assets/svgs/Avalanche3D.svg"}
-              alt="Avalanche3D"
-              height={72}
-              width={72}
-            />
-            <Image
-              src={"/assets/svgs/Cosmos3D.svg"}
-              alt="Cosmos3D"
-              height={72}
-              width={72}
-            />
-            <Image
-              src={"/assets/svgs/Polygon3D.svg"}
-              alt="Polygon3D"
-              height={72}
-              width={72}
-            />
-            <Image
-              src={"/assets/svgs/Solana3D.svg"}
-              alt="Solana3D"
-              height={72}
-              width={72}
-            />
-            <Image
-              src={"/assets/svgs/USDCoin3D.svg"}
-              alt="USDCoin3D"
-              height={72}
-              width={72}
-            />
+            <div>
+              <Image
+                src={"/assets/svgs/Ethereum3D.svg"}
+                alt="Ethereum3D"
+                height={72}
+                width={72}
+              />
+            </div>
+            <div>
+              <Image
+                src={"/assets/svgs/Avalanche3D.svg"}
+                alt="Avalanche3D"
+                height={72}
+                width={72}
+              />
+            </div>
+            <div>
+              <Image
+                src={"/assets/svgs/Cosmos3D.svg"}
+                alt="Cosmos3D"
+                height={72}
+                width={72}
+              />
+            </div>
+            <div>
+              <Image
+                src={"/assets/svgs/Polygon3D.svg"}
+                alt="Polygon3D"
+                height={72}
+                width={72}
+              />
+            </div>
+            <div>
+              <Image
+                src={"/assets/svgs/Solana3D.svg"}
+                alt="Solana3D"
+                height={72}
+                width={72}
+              />
+            </div>
+            <div>
+              <Image
+                src={"/assets/svgs/USDCoin3D.svg"}
+                alt="USDCoin3D"
+                height={72}
+                width={72}
+              />
+            </div>
           </div>
         </div>
         <div className="flex flex-col items-center justify-center gap-5 bg-[#030C1A] p-10 text-center font-hubotsans_regular text-white">
@@ -172,7 +184,7 @@ export default function HomePage() {
             </div>
           </div>
         </div>
-        <div className="flex h-[50vh] flex-col items-center justify-center gap-5 bg-[#030C1A] p-10 text-center font-hubotsans_regular text-white">
+        <div className="flex h-fit flex-col items-center justify-center gap-5 bg-[#030C1A] p-10 text-center font-hubotsans_regular text-white">
           <div className="flex w-2/3 flex-col items-center justify-center gap-5 self-center text-center">
             <h1 className="text-3xl font-bold text-[#FCFFFE]">
               Get on our token list
