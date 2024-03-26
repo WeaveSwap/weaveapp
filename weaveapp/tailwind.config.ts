@@ -91,6 +91,9 @@ const config = {
       backgroundImage: {
         background1: "url('/assets/Banner.jpeg')",
       },
+      backgroundColor: {
+        opacity: "#020E23B2"
+      }
     },
   },
   plugins: [require("tailwindcss-animate")],

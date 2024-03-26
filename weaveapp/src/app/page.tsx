@@ -35,8 +35,8 @@ const features = [
 export default function HomePage() {
   return (
     <main className="flex flex-col items-center font-khand text-white">
-      <div className="w-full">
-        <div className="flex h-screen flex-col justify-between bg-background1 bg-cover bg-center  bg-no-repeat p-10">
+      <div className="flex h-screen w-full flex-row bg-background1 bg-cover  bg-center bg-no-repeat">
+        <div className="flex h-screen flex-col justify-between bg-opacity p-10">
           <Header />
           <div className="flex  w-2/3 flex-col items-center justify-center gap-5 self-center text-center">
             <h1 className="font-kavoon text-3xl font-medium text-[#FCFFFE]">
@@ -54,7 +54,10 @@ export default function HomePage() {
           <div className="flex items-center justify-between justify-self-end rounded-md border-[0.5px] border-[#878787] p-8">
             {features.map((feature, index) => {
               return (
-                <span key={index} className="flex flex-col items-center justify-center text-center font-hubotsans_regular font-semibold text-white">
+                <span
+                  key={index}
+                  className="flex flex-col items-center justify-center text-center font-hubotsans_regular font-semibold text-white"
+                >
                   {feature.icon}
                   <p className="text-lg">{feature.title}</p>
                   <p className="text-sm">{feature.subTitle}</p>
